@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบระบบเสียง</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6b9d;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(135deg, #ff6b9d, #ff4a7a);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 ทดสอบระบบเสียง</h1>
+    
+    <div class="test-section">
+        <h2>ทดสอบไฟล์เสียงภาษาไทย</h2>
+        <p>คลิกปุ่มเพื่อทดสอบเสียงแต่ละไฟล์:</p>
+        <button onclick="testAudio('welcome.wav')">welcome.wav</button>
+        <button onclick="testAudio('armconfirm.wav')">armconfirm.wav</button>
+        <button onclick="testAudio('leftarm.wav')">leftarm.wav</button>
+        <button onclick="testAudio('rightarm.wav')">rightarm.wav</button>
+        <br>
+        <button onclick="testAudio('mode1.wav')">mode1.wav</button>
+        <button onclick="testAudio('mode2.wav')">mode2.wav</button>
+        <button onclick="testAudio('mode3.wav')">mode3.wav</button>
+        <button onclick="testAudio('mode4.wav')">mode4.wav</button>
+        <button onclick="testAudio('mode5.wav')">mode5.wav</button>
+        <div id="status" class="status" style="display:none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>ทดสอบ Web Speech API (อังกฤษ)</h2>
+        <button onclick="testSpeech('Ready. Mode start operation. Please select the arm side.')">ทดสอบเสียงอังกฤษ</button>
+        <button onclick="testSpeech('Right arm selected')">Right arm</button>
+        <button onclick="testSpeech('Left arm selected')">Left arm</button>
+        <button onclick="testSpeech('Starting mode 1')">Mode 1</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>คำแนะนำ</h2>
+        <p>✅ ถ้าได้ยินเสียง = ไฟล์พร้อมใช้งาน</p>
+        <p>❌ ถ้าไม่ได้ยินเสียง = ต้องเตรียมไฟล์เสียง</p>
+        <p>📁 วางไฟล์ .wav ในโฟลเดอร์เดียวกับ index.html</p>
+    </div>
+
+    <script>
+        function testAudio(filename) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.className = 'status';
+            status.textContent = `กำลังเล่น ${filename}...`;
+            
+            const audio = new Audio(filename);
+            
+            // เร่งสปีดถ้าไม่ใช่โหมด
+            if (!filename.startsWith('mode')) {
+                audio.playbackRate = 1.2;
+            }
+            
+            audio.onended = () => {
+                status.className = 'status success';
+                status.textContent = `✅ เล่น ${filename} เสร็จแล้ว`;
+            };
+            
+            audio.onerror = () => {
+                status.className = 'status error';
+                status.textContent = `❌ ไม่พบไฟล์ ${filename} - กรุณาเตรียมไฟล์เสียง`;
+            };
+            
+            audio.play().catch(err => {
+                status.className = 'status error';
+                status.textContent = `❌ ไม่สามารถเล่น ${filename}: ${err.message}`;
+            });
+        }
+        
+        function testSpeech(text) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.className = 'status';
+            status.textContent = `กำลังพูด: "${text}"`;
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                
+                utterance.onend = () => {
+                    status.className = 'status success';
+                    status.textContent = `✅ พูดเสร็จแล้ว`;
+                };
+                
+                utterance.onerror = (err) => {
+                    status.className = 'status error';
+                    status.textContent = `❌ เกิดข้อผิดพลาด: ${err.error}`;
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                status.className = 'status error';
+                status.textContent = '❌ เบราว์เซอร์ไม่รองรับ Web Speech API';
+            }
+        }
+    </script>
+</body>
+</html>
