@@ -998,9 +998,9 @@ class ESP32Controller {
         
         console.log('🎤 [DEBUG] ได้ยิน:', transcript);
         
-        // ป้องกันการรับคำสั่งซ้ำภายใน 2 วินาที
+        // ป้องกันการรับคำสั่งซ้ำภายใน 3 วินาที (เพิ่มจาก 2 เป็น 3)
         const now = Date.now();
-        if (this.lastVoiceCommand === transcript && (now - this.lastVoiceCommandTime) < 2000) {
+        if (this.lastVoiceCommand === transcript && (now - this.lastVoiceCommandTime) < 3000) {
             console.log('🎤 [DEBUG] ข้ามคำสั่งซ้ำ');
             return;
         }
@@ -1011,9 +1011,17 @@ class ESP32Controller {
         if (transcript.includes('หยุด') || transcript.includes('stop')) {
             console.log('🎤 [DEBUG] ได้ยินคำสั่ง: หยุด');
             
+            // รีเซ็ตสถานะโหมดที่กำลังทำงาน
+            this.currentRunningMode = null;
+            
             // ส่งโหมด 5 (หยุด)
             voiceStatus.textContent = '🎤 กำลังหยุดการทำงาน...';
             voiceStatus.className = 'voice-status info';
+            
+            // หยุดฟังชั่วคราวขณะเล่นเสียง
+            if (this.recognition) {
+                this.recognition.stop();
+            }
             
             this.speakMode(5, '');
             this.sendMode('5');
@@ -1028,9 +1036,13 @@ class ESP32Controller {
                 }
             });
             
+            // เปิดฟังใหม่หลังจาก 2 วินาที
             setTimeout(() => {
                 voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
                 voiceStatus.className = 'voice-status listening';
+                if (this.recognition && this.isListening) {
+                    this.recognition.start();
+                }
             }, 2000);
             return;
         }
@@ -1070,7 +1082,7 @@ class ESP32Controller {
             if (this.currentRunningMode !== null && modeNumber !== 5) {
                 // ถ้ากำลังทำงานอยู่และไม่ใช่คำสั่งหยุด (5) ให้ข้าม
                 console.log('🎤 [DEBUG] กำลังทำงานโหมด', this.currentRunningMode, 'อยู่ - ข้ามคำสั่ง');
-                voiceStatus.textContent = `⚠️ กำลังทำงานโหมด ${this.currentRunningMode} อยู่ - พูด "ห้า" เพื่อหยุดก่อน`;
+                voiceStatus.textContent = `⚠️ กำลังทำงานโหมด ${this.currentRunningMode} อยู่ - พูด "หยุด" เพื่อหยุดก่อน`;
                 voiceStatus.className = 'voice-status error';
                 
                 setTimeout(() => {
@@ -1161,11 +1173,23 @@ class ESP32Controller {
                 voiceStatus.textContent = `🎤 กำลังเริ่ม${armChanged ? armName : ''} โหมดที่ ${actualMode}`;
                 voiceStatus.className = 'voice-status info';
                 
+                // หยุดฟังชั่วคราวขณะเล่นเสียง
+                if (this.recognition) {
+                    this.recognition.stop();
+                }
+                
                 // พูดแจ้งเตือน - พูดชื่อแขนเฉพาะตอนเปลี่ยนแขน
                 this.speakMode(displayMode, armChanged ? armName : '');
                 
                 // ส่งคำสั่งไปที่ ESP32
                 this.sendMode(actualMode.toString());
+                
+                // เปิดฟังใหม่หลังจาก 2 วินาที
+                setTimeout(() => {
+                    if (this.recognition && this.isListening) {
+                        this.recognition.start();
+                    }
+                }, 2000);
                 
                 // อัปเดตปุ่มโหมด (แสดงโหมด 1-5 เสมอ)
                 const modeButtons = document.querySelectorAll('.btn-mode');
