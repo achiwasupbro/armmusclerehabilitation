@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ดาวน์โหลด - ระบบควบคุมกายภาพบำบัดแขน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 50%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.2);
+        }
+        h1 {
+            color: #ff6b9d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+        }
+        .step h3 {
+            color: #ff6b9d;
+            margin-bottom: 10px;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4a7a 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #ff6b9d;
+        }
+        .platform {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 ระบบควบคุมกายภาพบำบัดแขน</h1>
+        
+        <div class="warning">
+            <strong>⚠️ สำคัญ:</strong> เนื่องจากข้อจำกัดของเบราว์เซอร์ (Mixed Content Policy)<br>
+            ระบบนี้ไม่สามารถใช้งานผ่าน HTTPS Server ได้โดยตรง<br>
+            <strong>ต้องดาวน์โหลดไฟล์มาเปิดจากเครื่องของคุณเอง</strong>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="https://github.com/achiwasupbro/armmusclerehabilitation/archive/refs/heads/main.zip" class="download-btn">
+                📥 ดาวน์โหลดไฟล์ทั้งหมด (ZIP)
+            </a>
+        </div>
+
+        <h2 style="color: #333; margin-top: 30px;">วิธีใช้งาน:</h2>
+
+        <div class="step">
+            <h3>1. ดาวน์โหลดไฟล์</h3>
+            <p>กดปุ่ม "ดาวน์โหลดไฟล์ทั้งหมด" ด้านบน</p>
+        </div>
+
+        <div class="step">
+            <h3>2. แตกไฟล์ ZIP</h3>
+            <p>แตกไฟล์ <code>armmusclerehabilitation-main.zip</code> ที่ดาวน์โหลดมา</p>
+        </div>
+
+        <div class="step">
+            <h3>3. เปิดไฟล์</h3>
+            <p><span class="platform">💻 Windows/Mac</span> ดับเบิลคลิกที่ไฟล์ <code>index.html</code></p>
+            <p><span class="platform">📱 iOS/iPad</span> คัดลอกโฟลเดอร์ไปยัง iPad (ผ่าน AirDrop หรือ iCloud) แล้วเปิดไฟล์ <code>index.html</code> จาก Files app</p>
+            <p><span class="platform">🤖 Android</span> คัดลอกโฟลเดอร์ไปยังมือถือ แล้วเปิดไฟล์ <code>index.html</code> ด้วย Chrome</p>
+        </div>
+
+        <div class="step">
+            <h3>4. เชื่อมต่อ ESP32</h3>
+            <p>กรอก IP Address ของ ESP32 (เช่น <code>10.50.56.1</code>) แล้วกดปุ่ม "เชื่อมต่อ"</p>
+        </div>
+
+        <div class="step">
+            <h3>5. เริ่มใช้งาน</h3>
+            <p>เลือกแขน (ขวา/ซ้าย) แล้วเลือกโหมด 1-5</p>
+            <p>สามารถควบคุมด้วย: ปุ่ม, เสียง, หรือกล้อง AI</p>
+        </div>
+
+        <h2 style="color: #333; margin-top: 30px;">คุณสมบัติ:</h2>
+        <ul style="line-height: 2; margin: 20px 0 20px 30px;">
+            <li>🎮 ควบคุมด้วยปุ่ม</li>
+            <li>🎤 สั่งงานด้วยเสียง (พูด "1", "2", "3", "4", "5")</li>
+            <li>📷 AI ตรวจจับนิ้วมือ (ชูนิ้วเพื่อเลือกโหมด)</li>
+            <li>🌐 รองรับภาษาไทย/อังกฤษ</li>
+            <li>📱 ใช้งานได้ทั้ง PC, Mac, iOS, Android</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #666;">
+                <a href="https://github.com/achiwasupbro/armmusclerehabilitation" style="color: #ff6b9d; text-decoration: none;">
+                    📂 ดูโค้ดบน GitHub
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

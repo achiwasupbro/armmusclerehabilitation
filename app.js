@@ -43,29 +43,6 @@ class ESP32Controller {
             });
         }
         
-        // ปุ่มเชื่อมต่อด้วย IP ที่กรอกเอง
-        const connectManualBtn = document.getElementById('connectManualBtn');
-        const manualIPInput = document.getElementById('manualIP');
-        if (connectManualBtn && manualIPInput) {
-            connectManualBtn.addEventListener('click', () => {
-                this.stopRetry();
-                const ip = manualIPInput.value.trim();
-                if (ip) {
-                    this.connectManualIP(ip);
-                } else {
-                    this.scanStatus.textContent = '⚠️ กรุณากรอก IP Address';
-                    this.scanStatus.className = 'status error';
-                }
-            });
-            
-            // กด Enter ในช่อง IP เพื่อเชื่อมต่อ
-            manualIPInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    connectManualBtn.click();
-                }
-            });
-        }
-        
         // Auto scan on load
         window.addEventListener('load', () => {
             setTimeout(() => this.scanDevices(), 1000);
@@ -132,34 +109,6 @@ class ESP32Controller {
         console.log('🧪 เข้าสู่โหมดทดสอบ - ดู Console เพื่อดูผลการแปลงโหมด');
     }
     
-    async connectManualIP(ip) {
-        console.log(`🔗 กำลังเชื่อมต่อกับ IP: ${ip}`);
-        
-        this.scanStatus.textContent = `🔗 กำลังเชื่อมต่อกับ ${ip}...`;
-        this.scanStatus.className = 'status info';
-        
-        this.devices = [];
-        
-        // ลองเชื่อมต่อกับ IP ที่กรอก
-        await this.checkESP32(ip);
-        
-        if (this.devices.length > 0) {
-            // เชื่อมต่อสำเร็จ
-            this.scanStatus.textContent = `✅ เชื่อมต่อกับ ${ip} สำเร็จ!`;
-            this.scanStatus.className = 'status success';
-            
-            // บันทึก IP ไว้
-            localStorage.setItem('lastESP32IP', ip);
-            
-            // เลือกอุปกรณ์ทันที
-            this.selectDevice(this.devices[0]);
-        } else {
-            // เชื่อมต่อไม่สำเร็จ
-            this.scanStatus.textContent = `❌ ไม่สามารถเชื่อมต่อกับ ${ip} ได้ - ตรวจสอบ IP และเครือข่าย`;
-            this.scanStatus.className = 'status error';
-        }
-    }
-
     async scanDevices() {
         // ป้องกันการเรียกซ้ำ
         if (this.isScanning) {
@@ -1058,8 +1007,36 @@ class ESP32Controller {
         this.lastVoiceCommand = transcript;
         this.lastVoiceCommandTime = now;
         
-        // ตรวจสอบว่าเป็นตัวเลข 1-9 โดยตรง (ไม่ต้องมีคำว่า "ทำงานโหมด")
-        const directNumberMatch = transcript.match(/(\d+|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)/);
+        // ตรวจสอบคำสั่ง "หยุด" หรือ "stop"
+        if (transcript.includes('หยุด') || transcript.includes('stop')) {
+            console.log('🎤 [DEBUG] ได้ยินคำสั่ง: หยุด');
+            
+            // ส่งโหมด 5 (หยุด)
+            voiceStatus.textContent = '🎤 กำลังหยุดการทำงาน...';
+            voiceStatus.className = 'voice-status info';
+            
+            this.speakMode(5, '');
+            this.sendMode('5');
+            
+            // อัปเดตปุ่มโหมด
+            const modeButtons = document.querySelectorAll('.btn-mode');
+            modeButtons.forEach(btn => {
+                if (btn.dataset.mode === '5') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            setTimeout(() => {
+                voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
+                voiceStatus.className = 'voice-status listening';
+            }, 2000);
+            return;
+        }
+        
+        // ตรวจสอบว่าเป็นตัวเลข 1-9 โดยตรง (ไม่รวม 5)
+        const directNumberMatch = transcript.match(/(\d+|หนึ่ง|สอง|สาม|สี่|หก|เจ็ด|แปด|เก้า)/);
         
         if (directNumberMatch) {
             let modeNumber = directNumberMatch[1];
@@ -1070,7 +1047,6 @@ class ESP32Controller {
                 'สอง': 2,
                 'สาม': 3,
                 'สี่': 4,
-                'ห้า': 5,
                 'หก': 6,
                 'เจ็ด': 7,
                 'แปด': 8,
@@ -1081,6 +1057,11 @@ class ESP32Controller {
                 modeNumber = thaiNumbers[modeNumber];
             } else {
                 modeNumber = parseInt(modeNumber);
+            }
+            
+            // ข้ามถ้าเป็น 5 (ใช้คำว่า "หยุด" แทน)
+            if (modeNumber === 5) {
+                return;
             }
             
             console.log('🎤 [DEBUG] แปลงเป็นโหมด:', modeNumber);
