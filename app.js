@@ -1040,8 +1040,14 @@ class ESP32Controller {
             setTimeout(() => {
                 voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
                 voiceStatus.className = 'voice-status listening';
-                if (this.recognition && this.isListening) {
-                    this.recognition.start();
+                // เปิดฟังใหม่ (ไม่ต้องเช็ค isListening เพราะเพิ่ง stop ไป)
+                if (this.recognition) {
+                    try {
+                        this.recognition.start();
+                        this.isListening = true;
+                    } catch (e) {
+                        console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                    }
                 }
             }, 2000);
             return;
@@ -1186,8 +1192,14 @@ class ESP32Controller {
                 
                 // เปิดฟังใหม่หลังจาก 2 วินาที
                 setTimeout(() => {
-                    if (this.recognition && this.isListening) {
-                        this.recognition.start();
+                    // เปิดฟังใหม่ (ไม่ต้องเช็ค isListening เพราะเพิ่ง stop ไป)
+                    if (this.recognition) {
+                        try {
+                            this.recognition.start();
+                            this.isListening = true;
+                        } catch (e) {
+                            console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                        }
                     }
                 }, 2000);
                 
