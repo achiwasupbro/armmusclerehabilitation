@@ -61,12 +61,37 @@ class HandGestureDetector {
     }
     
     init() {
-        // Setup MediaPipe Hands
-        this.hands = new Hands({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        // ตรวจสอบว่า MediaPipe โหลดสำเร็จหรือไม่
+        if (typeof Hands === 'undefined') {
+            console.error('❌ MediaPipe Hands ไม่ได้โหลด - ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+            if (this.gestureStatusElement) {
+                this.gestureStatusElement.textContent = '❌ ไม่สามารถโหลด AI กล้อง - ตรวจสอบอินเทอร์เน็ต';
+                this.gestureStatusElement.className = 'gesture-status error';
+                this.gestureStatusElement.style.display = 'block';
             }
-        });
+            if (this.startCameraBtn) {
+                this.startCameraBtn.disabled = true;
+                this.startCameraBtn.textContent = '❌ AI ไม่พร้อม';
+            }
+            return;
+        }
+        
+        // Setup MediaPipe Hands
+        try {
+            this.hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+        } catch (error) {
+            console.error('❌ ไม่สามารถสร้าง MediaPipe Hands:', error);
+            if (this.gestureStatusElement) {
+                this.gestureStatusElement.textContent = '❌ ไม่สามารถเริ่ม AI กล้อง';
+                this.gestureStatusElement.className = 'gesture-status error';
+                this.gestureStatusElement.style.display = 'block';
+            }
+            return;
+        }
         
         this.hands.setOptions({
             maxNumHands: 1, // ตรวจจับมือเดียว
@@ -103,6 +128,17 @@ class HandGestureDetector {
     
     async startCamera() {
         if (this.isRunning) return;
+        
+        // ตรวจสอบว่า Camera API พร้อมหรือไม่
+        if (typeof Camera === 'undefined') {
+            console.error('❌ MediaPipe Camera API ไม่ได้โหลด');
+            if (this.gestureStatusElement) {
+                this.gestureStatusElement.textContent = '❌ Camera API ไม่พร้อม - รีเฟรชหน้าเว็บ';
+                this.gestureStatusElement.className = 'gesture-status error';
+                this.gestureStatusElement.style.display = 'block';
+            }
+            return;
+        }
         
         try {
             // ตั้งค่า MediaPipe Camera
