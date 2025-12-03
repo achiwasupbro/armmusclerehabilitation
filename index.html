@@ -125,6 +125,28 @@
     <script src="language.js"></script>
     <script src="handGesture.js"></script>
     <script src="app.js"></script>
+    
+    <script>
+    // ตรวจสอบว่า MediaPipe โหลดสำเร็จหรือไม่
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
+                console.error('❌ MediaPipe ไม่ได้โหลด - ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+                const cameraSection = document.querySelector('.camera-control');
+                if (cameraSection) {
+                    const warning = document.createElement('p');
+                    warning.style.color = '#ff4a7a';
+                    warning.style.fontSize = '0.9rem';
+                    warning.style.marginTop = '10px';
+                    warning.textContent = '⚠️ กล้อง AI ไม่พร้อม - ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรช';
+                    cameraSection.appendChild(warning);
+                }
+            } else {
+                console.log('✅ MediaPipe โหลดสำเร็จ');
+            }
+        }, 2000);
+    });
+    </script>
 </body>
 </html>
 

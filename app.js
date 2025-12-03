@@ -1,3 +1,7 @@
+// ตรวจสอบว่าเป็น iOS/iPad หรือไม่
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 // ESP32 Auto Discovery Controller
 class ESP32Controller {
     constructor() {
@@ -17,6 +21,7 @@ class ESP32Controller {
         this.currentRunningMode = null; // โหมดที่กำลังทำงานอยู่ (null = ไม่มีโหมดทำงาน)
         this.lastVoiceCommand = null; // คำสั่งเสียงล่าสุด
         this.lastVoiceCommandTime = 0; // เวลาที่ได้รับคำสั่งเสียงล่าสุด
+        this.isIOS = isIOS; // เก็บสถานะว่าเป็น iOS หรือไม่
         
         this.init();
     }
@@ -102,13 +107,20 @@ class ESP32Controller {
         // Setup voice control
         this.setupVoiceControl();
         
-        // สร้าง HandGestureDetector สำหรับกล้อง
-        if (!handGestureDetector) {
+        // สร้าง HandGestureDetector สำหรับกล้อง (ไม่รองรับ iOS)
+        if (!handGestureDetector && !this.isIOS) {
             try {
                 handGestureDetector = new HandGestureDetector(this);
                 console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
             } catch (error) {
                 console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
+            }
+        } else if (this.isIOS) {
+            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
+            // ซ่อนปุ่มกล้อง
+            const cameraSection = document.querySelector('.camera-control');
+            if (cameraSection) {
+                cameraSection.style.display = 'none';
             }
         }
         
@@ -616,13 +628,20 @@ class ESP32Controller {
             this.speakReady();
         }, 500);
         
-        // สร้าง HandGestureDetector เมื่อ deviceControl แสดงแล้ว
-        if (!handGestureDetector) {
+        // สร้าง HandGestureDetector เมื่อ deviceControl แสดงแล้ว (ไม่รองรับ iOS)
+        if (!handGestureDetector && !this.isIOS) {
             try {
                 handGestureDetector = new HandGestureDetector(this);
                 console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
             } catch (error) {
                 console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
+            }
+        } else if (this.isIOS) {
+            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
+            // ซ่อนปุ่มกล้อง
+            const cameraSection = document.querySelector('.camera-control');
+            if (cameraSection) {
+                cameraSection.style.display = 'none';
             }
         }
     }
