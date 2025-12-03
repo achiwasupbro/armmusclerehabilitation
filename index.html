@@ -33,7 +33,10 @@
                     <span>เชื่อมต่อ</span>
                 </button>
             </div>
-            <p class="ip-hint">💡 iOS/iPad: ต้องเปิดไฟล์ index.html จากเครื่องโดยตรง (ไม่ใช่ผ่าน Server)</p>
+            <p class="ip-hint" style="color: #ff4a7a; font-weight: 600;">
+                ⚠️ สำคัญ: ต้องเปิดไฟล์ index.html จากเครื่องโดยตรง<br>
+                <small style="color: #666;">ไม่สามารถใช้งานผ่าน HTTPS Server ได้ (Mixed Content)</small>
+            </p>
             <div id="scanStatus" class="status"></div>
         </div>
 
@@ -124,7 +127,7 @@
         </div>
     </div>
     <script src="language.js"></script>
-    <script src="handGesture.js"></script>
+    <script src="handgesture.js"></script>
     <script src="app.js"></script>
     
     <script>
