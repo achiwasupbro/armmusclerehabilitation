@@ -790,7 +790,9 @@ class ESP32Controller {
         
         // ถ้าอยู่ในโหมดทดสอบ ไม่ต้องส่งจริง
         if (this.currentDevice.ip === 'TEST-MODE') {
-            console.log(`🧪 [TEST MODE] จำลองการส่งโหมด ${mode} (ไม่ได้ส่งจริง)`);
+            // แปลงโหมด 6-9 เป็น 1-4 สำหรับแสดงผล
+            const displayMode = (parseInt(mode) >= 6 && parseInt(mode) <= 9) ? (parseInt(mode) - 5) : parseInt(mode);
+            console.log(`🧪 [TEST MODE] จำลองการส่งโหมด ${displayMode} (ส่งจริง: ${mode}) (ไม่ได้ส่งจริง)`);
             return true; // return success เพื่อให้ UI แสดงว่าส่งสำเร็จ
         }
         
@@ -802,7 +804,9 @@ class ESP32Controller {
         const baseUrl = `http://${address}`;
         const modeUrl = `${baseUrl}/mode`;
         
-        console.log(`📡 กำลังส่งโหมด ${mode} ไปที่ ${modeUrl}`);
+        // แปลงโหมด 6-9 เป็น 1-4 สำหรับแสดงผล
+        const displayMode = (parseInt(mode) >= 6 && parseInt(mode) <= 9) ? (parseInt(mode) - 5) : parseInt(mode);
+        console.log(`📡 กำลังส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${modeUrl}`);
         console.log(`📦 Device info:`, this.currentDevice);
         
         try {
@@ -828,7 +832,7 @@ class ESP32Controller {
             
             if (response.ok) {
                 const data = await response.text();
-                console.log(`✅ ส่งโหมด ${mode} ไปที่ ${modeUrl} สำเร็จ:`, data);
+                console.log(`✅ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${modeUrl} สำเร็จ:`, data);
                 
                 // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
                 if (parseInt(mode) === 5) {
@@ -838,7 +842,7 @@ class ESP32Controller {
                 
                 return true;
             } else {
-                console.error(`❌ ส่งโหมด ${mode} ไม่สำเร็จ: ${response.status} ${response.statusText}`);
+                console.error(`❌ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไม่สำเร็จ: ${response.status} ${response.statusText}`);
                 return false;
             }
         } catch (error) {
@@ -852,7 +856,7 @@ class ESP32Controller {
                     mode: 'no-cors',
                     cache: 'no-cache'
                 });
-                console.log(`✅ ส่งโหมด ${mode} ไปที่ ${baseUrl} (GET method - no-cors)`);
+                console.log(`✅ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${baseUrl} (GET method - no-cors)`);
                 
                 // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
                 if (parseInt(mode) === 5) {
@@ -1155,8 +1159,12 @@ class ESP32Controller {
             // ตรวจสอบว่ากำลังทำงานโหมดอยู่หรือไม่
             if (this.currentRunningMode !== null && modeNumber !== 5) {
                 // ถ้ากำลังทำงานอยู่และไม่ใช่คำสั่งหยุด (5) ให้ข้าม
-                console.log('🎤 [DEBUG] กำลังทำงานโหมด', this.currentRunningMode, 'อยู่ - ข้ามคำสั่ง');
-                voiceStatus.textContent = `⚠️ กำลังทำงานโหมด ${this.currentRunningMode} อยู่ - พูด "หยุด" เพื่อหยุดก่อน`;
+                // แปลงโหมด 6-9 เป็น 1-4 สำหรับแสดงผล
+                const displayRunningMode = (this.currentRunningMode >= 6 && this.currentRunningMode <= 9) 
+                    ? (this.currentRunningMode - 5) 
+                    : this.currentRunningMode;
+                console.log('🎤 [DEBUG] กำลังทำงานโหมด', displayRunningMode, '(จริง:', this.currentRunningMode, ') อยู่ - ข้ามคำสั่ง');
+                voiceStatus.textContent = `⚠️ กำลังทำงานโหมด ${displayRunningMode} อยู่ - พูด "หยุด" เพื่อหยุดก่อน`;
                 voiceStatus.className = 'voice-status error';
                 
                 setTimeout(() => {
