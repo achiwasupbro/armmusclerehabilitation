@@ -655,15 +655,19 @@ class ESP32Controller {
             progressStatus.textContent = `🔄 โหมด ${displayMode}: รอบที่ ${data.round}/${data.totalRounds} - ${data.action}`;
             progressStatus.className = 'progress-status running';
             
-            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode)
-            this.currentRunningMode = data.mode;
+            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode) - ยกเว้นโหมด 0 และ 5
+            if (data.mode !== 0 && data.mode !== 5) {
+                this.currentRunningMode = data.mode;
+            }
         } else if (data.isRunning && data.mode >= 6 && data.mode <= 9) {
             // แสดง progress สำหรับโหมด 6-9 (แขนซ้าย) แต่แสดงเป็น 1-4
             progressStatus.textContent = `🔄 โหมด ${displayMode}: รอบที่ ${data.round}/${data.totalRounds} - ${data.action}`;
             progressStatus.className = 'progress-status running';
             
-            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode)
-            this.currentRunningMode = data.mode;
+            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode) - ยกเว้นโหมด 0 และ 5
+            if (data.mode !== 0 && data.mode !== 5) {
+                this.currentRunningMode = data.mode;
+            }
         } else if (data.mode > 0 && !data.isRunning) {
             // แสดงว่าเสร็จแล้วหรือถูกหยุด
             if (data.action === "ถูกหยุด") {
@@ -825,6 +829,13 @@ class ESP32Controller {
             if (response.ok) {
                 const data = await response.text();
                 console.log(`✅ ส่งโหมด ${mode} ไปที่ ${modeUrl} สำเร็จ:`, data);
+                
+                // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
+                if (parseInt(mode) === 5) {
+                    this.currentRunningMode = null;
+                    console.log('🛑 รีเซ็ตสถานะโหมดทันทีหลังส่งโหมด 5');
+                }
+                
                 return true;
             } else {
                 console.error(`❌ ส่งโหมด ${mode} ไม่สำเร็จ: ${response.status} ${response.statusText}`);
@@ -842,6 +853,13 @@ class ESP32Controller {
                     cache: 'no-cache'
                 });
                 console.log(`✅ ส่งโหมด ${mode} ไปที่ ${baseUrl} (GET method - no-cors)`);
+                
+                // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
+                if (parseInt(mode) === 5) {
+                    this.currentRunningMode = null;
+                    console.log('🛑 รีเซ็ตสถานะโหมดทันทีหลังส่งโหมด 5 (GET)');
+                }
+                
                 return true;
             } catch (e) {
                 console.error('❌ GET request ก็ล้มเหลว:', e);
