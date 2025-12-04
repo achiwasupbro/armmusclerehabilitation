@@ -984,11 +984,29 @@ class ESP32Controller {
         };
         
         this.recognition.onend = () => {
-            this.isListening = false;
-            voiceStatus.textContent = '';
-            voiceStatus.className = '';
-            startVoiceBtn.classList.remove('hidden');
-            stopVoiceBtn.classList.add('hidden');
+            console.log('🎤 Recognition ended, isListening:', this.isListening);
+            
+            // ถ้ายังอยู่ในโหมดฟัง (ไม่ได้กดหยุด) ให้เริ่มฟังใหม่อัตโนมัติ
+            if (this.isListening) {
+                console.log('🎤 เริ่มฟังใหม่อัตโนมัติ...');
+                try {
+                    this.recognition.start();
+                } catch (e) {
+                    console.error('🎤 ไม่สามารถเริ่มฟังใหม่:', e);
+                    // ถ้าเริ่มไม่ได้ ให้รีเซ็ตสถานะ
+                    this.isListening = false;
+                    voiceStatus.textContent = '';
+                    voiceStatus.className = '';
+                    startVoiceBtn.classList.remove('hidden');
+                    stopVoiceBtn.classList.add('hidden');
+                }
+            } else {
+                // ถ้ากดหยุดแล้ว ให้รีเซ็ตสถานะปกติ
+                voiceStatus.textContent = '';
+                voiceStatus.className = '';
+                startVoiceBtn.classList.remove('hidden');
+                stopVoiceBtn.classList.add('hidden');
+            }
         };
         
         this.recognition.onerror = (event) => {
@@ -1017,13 +1035,17 @@ class ESP32Controller {
         
         startVoiceBtn.addEventListener('click', () => {
             if (this.recognition) {
+                this.isListening = true; // ตั้งค่าให้ฟังต่อเนื่อง
                 this.recognition.start();
+                console.log('🎤 เริ่มฟังคำสั่งเสียง (ต่อเนื่อง)');
             }
         });
         
         stopVoiceBtn.addEventListener('click', () => {
             if (this.recognition) {
+                this.isListening = false; // ตั้งค่าให้หยุดฟัง
                 this.recognition.stop();
+                console.log('🎤 หยุดฟังคำสั่งเสียง');
             }
         });
     }
@@ -1053,7 +1075,8 @@ class ESP32Controller {
             voiceStatus.textContent = '🎤 กำลังหยุดการทำงาน...';
             voiceStatus.className = 'voice-status info';
             
-            // หยุดฟังชั่วคราวขณะเล่นเสียง
+            // หยุดฟังชั่วคราวขณะเล่นเสียง (แต่ยังคงสถานะ isListening ไว้)
+            const wasListening = this.isListening;
             if (this.recognition) {
                 this.recognition.stop();
             }
@@ -1071,17 +1094,18 @@ class ESP32Controller {
                 }
             });
             
-            // เปิดฟังใหม่หลังจาก 2 วินาที
+            // เปิดฟังใหม่หลังจาก 2 วินาที (ถ้าเดิมกำลังฟังอยู่)
             setTimeout(() => {
-                voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
-                voiceStatus.className = 'voice-status listening';
-                // เปิดฟังใหม่ (ไม่ต้องเช็ค isListening เพราะเพิ่ง stop ไป)
-                if (this.recognition) {
-                    try {
-                        this.recognition.start();
-                        this.isListening = true;
-                    } catch (e) {
-                        console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                if (wasListening) {
+                    voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
+                    voiceStatus.className = 'voice-status listening';
+                    if (this.recognition) {
+                        try {
+                            this.isListening = true;
+                            this.recognition.start();
+                        } catch (e) {
+                            console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                        }
                     }
                 }
             }, 2000);
@@ -1214,7 +1238,8 @@ class ESP32Controller {
                 voiceStatus.textContent = `🎤 กำลังเริ่ม${armChanged ? armName : ''} โหมดที่ ${displayMode}`;
                 voiceStatus.className = 'voice-status info';
                 
-                // หยุดฟังชั่วคราวขณะเล่นเสียง
+                // หยุดฟังชั่วคราวขณะเล่นเสียง (แต่ยังคงสถานะ isListening ไว้)
+                const wasListening = this.isListening;
                 if (this.recognition) {
                     this.recognition.stop();
                 }
@@ -1225,15 +1250,16 @@ class ESP32Controller {
                 // ส่งคำสั่งไปที่ ESP32
                 this.sendMode(actualMode.toString());
                 
-                // เปิดฟังใหม่หลังจาก 2 วินาที
+                // เปิดฟังใหม่หลังจาก 2 วินาที (ถ้าเดิมกำลังฟังอยู่)
                 setTimeout(() => {
-                    // เปิดฟังใหม่ (ไม่ต้องเช็ค isListening เพราะเพิ่ง stop ไป)
-                    if (this.recognition) {
-                        try {
-                            this.recognition.start();
-                            this.isListening = true;
-                        } catch (e) {
-                            console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                    if (wasListening) {
+                        if (this.recognition) {
+                            try {
+                                this.isListening = true;
+                                this.recognition.start();
+                            } catch (e) {
+                                console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                            }
                         }
                     }
                 }, 2000);
