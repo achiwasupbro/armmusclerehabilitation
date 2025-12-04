@@ -989,17 +989,22 @@ class ESP32Controller {
             // ถ้ายังอยู่ในโหมดฟัง (ไม่ได้กดหยุด) ให้เริ่มฟังใหม่อัตโนมัติ
             if (this.isListening) {
                 console.log('🎤 เริ่มฟังใหม่อัตโนมัติ...');
-                try {
-                    this.recognition.start();
-                } catch (e) {
-                    console.error('🎤 ไม่สามารถเริ่มฟังใหม่:', e);
-                    // ถ้าเริ่มไม่ได้ ให้รีเซ็ตสถานะ
-                    this.isListening = false;
-                    voiceStatus.textContent = '';
-                    voiceStatus.className = '';
-                    startVoiceBtn.classList.remove('hidden');
-                    stopVoiceBtn.classList.add('hidden');
-                }
+                // ใช้ setTimeout เล็กน้อยเพื่อให้ recognition พร้อม
+                setTimeout(() => {
+                    if (this.isListening) { // เช็คอีกครั้งเผื่อถูกหยุดระหว่างรอ
+                        try {
+                            this.recognition.start();
+                        } catch (e) {
+                            console.error('🎤 ไม่สามารถเริ่มฟังใหม่:', e);
+                            // ถ้าเริ่มไม่ได้ ให้รีเซ็ตสถานะ
+                            this.isListening = false;
+                            voiceStatus.textContent = '';
+                            voiceStatus.className = '';
+                            startVoiceBtn.classList.remove('hidden');
+                            stopVoiceBtn.classList.add('hidden');
+                        }
+                    }
+                }, 300); // รอ 300ms ให้ recognition พร้อม
             } else {
                 // ถ้ากดหยุดแล้ว ให้รีเซ็ตสถานะปกติ
                 voiceStatus.textContent = '';
@@ -1096,17 +1101,21 @@ class ESP32Controller {
             
             // เปิดฟังใหม่หลังจาก 2 วินาที (ถ้าเดิมกำลังฟังอยู่)
             setTimeout(() => {
-                if (wasListening) {
+                if (wasListening && this.recognition) {
                     voiceStatus.textContent = '🎤 กำลังฟังคำสั่ง...';
                     voiceStatus.className = 'voice-status listening';
-                    if (this.recognition) {
-                        try {
-                            this.isListening = true;
-                            this.recognition.start();
-                        } catch (e) {
-                            console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                    this.isListening = true;
+                    // ไม่ต้อง start ใหม่ เพราะ onend จะ start อัตโนมัติ
+                    // แต่ถ้า recognition หยุดไปแล้ว ให้ start
+                    setTimeout(() => {
+                        if (this.isListening) {
+                            try {
+                                this.recognition.start();
+                            } catch (e) {
+                                console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว หรือจะเริ่มเอง');
+                            }
                         }
-                    }
+                    }, 100);
                 }
             }, 2000);
             return;
@@ -1252,15 +1261,19 @@ class ESP32Controller {
                 
                 // เปิดฟังใหม่หลังจาก 2 วินาที (ถ้าเดิมกำลังฟังอยู่)
                 setTimeout(() => {
-                    if (wasListening) {
-                        if (this.recognition) {
-                            try {
-                                this.isListening = true;
-                                this.recognition.start();
-                            } catch (e) {
-                                console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว');
+                    if (wasListening && this.recognition) {
+                        this.isListening = true;
+                        // ไม่ต้อง start ใหม่ เพราะ onend จะ start อัตโนมัติ
+                        // แต่ถ้า recognition หยุดไปแล้ว ให้ start
+                        setTimeout(() => {
+                            if (this.isListening) {
+                                try {
+                                    this.recognition.start();
+                                } catch (e) {
+                                    console.log('ℹ️ Recognition กำลังทำงานอยู่แล้ว หรือจะเริ่มเอง');
+                                }
                             }
-                        }
+                        }, 100);
                     }
                 }, 2000);
                 
