@@ -643,17 +643,34 @@ class ESP32Controller {
     updateProgressDisplay(data) {
         const progressStatus = document.getElementById('progressStatus');
         
+        // แปลงโหมดเป็น displayMode (1-4) สำหรับแสดงผล
+        // โหมด 6-9 → แสดงเป็น 1-4
+        let displayMode = data.mode;
+        if (data.mode >= 6 && data.mode <= 9) {
+            displayMode = data.mode - 5; // 6→1, 7→2, 8→3, 9→4
+        }
+        
         if (data.isRunning && data.mode >= 1 && data.mode <= 4) {
-            // แสดง progress สำหรับโหมด 1, 2, 3, และ 4
-            progressStatus.textContent = `🔄 โหมด ${data.mode}: รอบที่ ${data.round}/${data.totalRounds} - ${data.action}`;
+            // แสดง progress สำหรับโหมด 1, 2, 3, และ 4 (แขนขวา)
+            progressStatus.textContent = `🔄 โหมด ${displayMode}: รอบที่ ${data.round}/${data.totalRounds} - ${data.action}`;
             progressStatus.className = 'progress-status running';
+            
+            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode)
+            this.currentRunningMode = data.mode;
+        } else if (data.isRunning && data.mode >= 6 && data.mode <= 9) {
+            // แสดง progress สำหรับโหมด 6-9 (แขนซ้าย) แต่แสดงเป็น 1-4
+            progressStatus.textContent = `🔄 โหมด ${displayMode}: รอบที่ ${data.round}/${data.totalRounds} - ${data.action}`;
+            progressStatus.className = 'progress-status running';
+            
+            // อัปเดตสถานะโหมดที่กำลังทำงาน (เก็บเป็น actualMode)
+            this.currentRunningMode = data.mode;
         } else if (data.mode > 0 && !data.isRunning) {
             // แสดงว่าเสร็จแล้วหรือถูกหยุด
             if (data.action === "ถูกหยุด") {
-                progressStatus.textContent = `🛑 โหมด ${data.mode} ถูกหยุด`;
+                progressStatus.textContent = `🛑 โหมด ${displayMode} ถูกหยุด`;
                 progressStatus.className = 'progress-status error';
             } else {
-                progressStatus.textContent = `✅ โหมด ${data.mode} เสร็จสิ้น`;
+                progressStatus.textContent = `✅ โหมด ${displayMode} เสร็จสิ้น`;
                 progressStatus.className = 'progress-status completed';
             }
             
@@ -722,8 +739,8 @@ class ESP32Controller {
                 }
                 const armName = this.selectedArm === 'right' ? 'แขนขวา' : 'แขนซ้าย';
                 
-                // แสดงสถานะว่ากำลังส่ง
-                modeStatus.textContent = `⏳ กำลังส่งโหมด ${actualMode}...`;
+                // แสดงสถานะว่ากำลังส่ง (แสดงเป็น displayMode เสมอ)
+                modeStatus.textContent = `⏳ กำลังส่งโหมด ${displayMode}...`;
                 modeStatus.className = 'mode-status info';
                 
                 // Update button states - เปลี่ยนเป็นสีชมพูทันที
@@ -733,12 +750,12 @@ class ESP32Controller {
                 // พูดแจ้งเตือน - ไม่พูดชื่อแขน (เพราะกดปุ่มเอง รู้อยู่แล้วว่าเลือกแขนไหน)
                 this.speakMode(displayMode, '');
                 
-                // ส่งโหมด
+                // ส่งโหมด (ส่ง actualMode ไป ESP32 แต่แสดงเป็น displayMode)
                 const success = await this.sendMode(actualMode);
                 
-                // แสดงสถานะผลลัพธ์
+                // แสดงสถานะผลลัพธ์ (แสดงเป็น displayMode เสมอ)
                 if (success) {
-                    modeStatus.textContent = `✅ ส่งเสร็จแล้ว - โหมด ${actualMode}`;
+                    modeStatus.textContent = `✅ ส่งเสร็จแล้ว - โหมด ${displayMode}`;
                     modeStatus.className = 'mode-status success';
                     
                     // แสดงข้อความชัดเจนเป็นเวลา 3 วินาที
@@ -751,7 +768,7 @@ class ESP32Controller {
                 } else {
                     // ถ้าส่งไม่สำเร็จ ให้ลบ active state
                     e.currentTarget.classList.remove('active');
-                    modeStatus.textContent = `❌ ส่งโหมด ${actualMode} ไม่สำเร็จ`;
+                    modeStatus.textContent = `❌ ส่งโหมด ${displayMode} ไม่สำเร็จ`;
                     modeStatus.className = 'mode-status error';
                 }
             });
@@ -1175,8 +1192,8 @@ class ESP32Controller {
                     this.currentRunningMode = actualMode;
                 }
                 
-                // แสดงข้อความในเว็บ
-                voiceStatus.textContent = `🎤 กำลังเริ่ม${armChanged ? armName : ''} โหมดที่ ${actualMode}`;
+                // แสดงข้อความในเว็บ (แสดงเป็น displayMode เสมอ)
+                voiceStatus.textContent = `🎤 กำลังเริ่ม${armChanged ? armName : ''} โหมดที่ ${displayMode}`;
                 voiceStatus.className = 'voice-status info';
                 
                 // หยุดฟังชั่วคราวขณะเล่นเสียง
