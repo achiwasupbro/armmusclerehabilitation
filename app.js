@@ -174,11 +174,8 @@ class ESP32Controller {
                 console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
             }
         } else if (this.isIOS) {
-            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
-            const cameraSection = document.querySelector('.camera-control');
-            if (cameraSection) {
-                cameraSection.style.display = 'none';
-            }
+            console.log('ℹ️ iOS ตรวจพบ - กล้อง AI อาจทำงานช้า');
+            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
         }
         
         // พูดว่าระบบพร้อม
