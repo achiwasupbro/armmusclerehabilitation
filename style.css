@@ -1038,12 +1038,3 @@ header h1 {
     z-index: 100;
 }
 
-.connection-mode-indicator.ip-mode {
-    color: #0066cc;
-    border: 1px solid #b3d9ff;
-}
-
-.connection-mode-indicator.firebase-mode {
-    color: #ff6b35;
-    border: 1px solid #ffb3a0;
-}

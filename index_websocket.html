@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หุ่นยนต์กายภาพบำบัดแขน (WebSocket)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="กายภาพบำบัด">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="mainTitle">ระบบควบคุมกายภาพบำบัดแขน</h1>
+            <p class="subtitle" id="subtitle">ควบคุมผ่าน WebSocket - ไม่ต้องใส่ IP</p>
+            <button id="langToggle" class="btn btn-lang">🌐 TH</button>
+        </header>
+
+        <div class="discovery-section">
+            <button id="scanBtn" class="btn btn-primary" style="display: none;">
+                <span class="btn-icon">🔍</span>
+                <span id="scanBtnText">ค้นหา ESP32 อัตโนมัติ</span>
+            </button>
+            <button id="skipBtn" class="btn btn-skip" style="display: none;">
+                <span class="btn-icon">⏭️</span>
+                <span id="skipBtnText">ข้ามไปทดสอบ (ไม่มีบอร์ด)</span>
+            </button>
+            <div id="scanStatus" class="status"></div>
+        </div>
+
+        <div id="devicesList" class="devices-list"></div>
+
+        <div id="deviceControl" class="device-control hidden">
+            <h2 id="deviceControlTitle">เจออุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขนแล้ว</h2>
+            <div class="device-info">
+                <p><strong id="deviceNameLabel">ชื่อ:</strong> <span id="deviceName"></span></p>
+                <p><strong id="deviceAddressLabel">การเชื่อมต่อ:</strong> <span id="deviceIP"></span></p>
+                <p><strong id="deviceStatusLabel">สถานะ:</strong> <span id="deviceStatus" class="status-badge">-</span></p>
+            </div>
+            
+            <div class="arm-selection">
+                <h3 id="armSelectionTitle">เลือกแขน</h3>
+                <div class="arm-buttons">
+                    <button class="btn btn-arm" data-arm="right">
+                        <span class="arm-icon">👉</span>
+                        <span class="arm-label" id="rightArmLabel">แขนขวา</span>
+                    </button>
+                    <button class="btn btn-arm" data-arm="left">
+                        <span class="arm-icon">👈</span>
+                        <span class="arm-label" id="leftArmLabel">แขนซ้าย</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mode-control">
+                <h3 id="modeControlTitle">เลือกโหมด</h3>
+                <div class="mode-buttons">
+                    <button class="btn btn-mode" data-mode="1">
+                        <span class="mode-number">1</span>
+                        <span class="mode-label mode-label-1">โหมด 1</span>
+                    </button>
+                    <button class="btn btn-mode" data-mode="2">
+                        <span class="mode-number">2</span>
+                        <span class="mode-label mode-label-2">โหมด 2</span>
+                    </button>
+                    <button class="btn btn-mode" data-mode="3">
+                        <span class="mode-number">3</span>
+                        <span class="mode-label mode-label-3">โหมด 3</span>
+                    </button>
+                    <button class="btn btn-mode" data-mode="4">
+                        <span class="mode-number">4</span>
+                        <span class="mode-label mode-label-4">โหมด 4</span>
+                    </button>
+                    <button class="btn btn-mode" data-mode="5">
+                        <span class="mode-number">5</span>
+                        <span class="mode-label mode-label-5">หยุดการทำงาน</span>
+                    </button>
+                </div>
+                <div id="modeStatus" class="mode-status"></div>
+                <div id="progressStatus" class="progress-status"></div>
+            </div>
+
+            <div class="voice-control">
+                <h3 id="voiceControlTitle">🎤 สั่งงานด้วยเสียง</h3>
+                <button id="startVoiceBtn" class="btn btn-voice">
+                    <span class="btn-icon">🎤</span>
+                    <span id="startVoiceBtnText">เริ่มฟังคำสั่ง</span>
+                </button>
+                <button id="stopVoiceBtn" class="btn btn-voice hidden">
+                    <span class="btn-icon">⏹️</span>
+                    <span id="stopVoiceBtnText">หยุดฟังคำสั่ง</span>
+                </button>
+                <div id="voiceStatus" class="voice-status"></div>
+            </div>
+
+            <div class="camera-control">
+                <h3 id="cameraControlTitle">🤖 AI ตรวจจับนิ้วมือ</h3>
+                <div id="mediapipeStatus" style="padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 0.9rem;"></div>
+                <button id="startCameraBtn" class="btn btn-camera">
+                    <span class="btn-icon">📷</span>
+                    <span id="startCameraBtnText">เปิดกล้อง</span>
+                </button>
+                <button id="stopCameraBtn" class="btn btn-camera hidden">
+                    <span class="btn-icon">⏹️</span>
+                    <span id="stopCameraBtnText">ปิดกล้อง</span>
+                </button>
+                <div class="camera-container">
+                    <video id="videoElement" class="camera-video" autoplay playsinline></video>
+                    <canvas id="canvasElement" class="camera-canvas"></canvas>
+                    <div id="fingerCount" class="finger-count">0 นิ้ว</div>
+                    <div id="countdown" class="countdown"></div>
+                </div>
+                <div id="gestureStatus" class="gesture-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="language.js"></script>
+    <script src="app_websocket.js"></script>
+</body>
+</html>

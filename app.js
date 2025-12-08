@@ -815,186 +815,11 @@ class ESP32Controller {
             });
         });
         
-        // ตั้งค่าเริ่มต้น
-        this.setConnectionMode(this.connectionMode);
-        this.updateConnectionModeIndicator();
     }
     
-    // ตั้งค่า Connection Mode
-    setConnectionMode(mode) {
-        this.connectionMode = mode;
-        
-        if (mode === 'firebase') {
-            this.useFirebase = true;
-            console.log('🔥 เปลี่ยนเป็น Firebase Mode');
-        } else {
-            this.useFirebase = false;
-            console.log('🌐 เปลี่ยนเป็น IP Mode');
-        }
-        
-        // บันทึกการตั้งค่า
-        localStorage.setItem('connectionMode', mode);
-        
-        // อัปเดต UI
-        this.updateConnectionModeIndicator();
-        this.updateScanButtonText();
-    }
-    
-    // อัปเดต Connection Mode Indicator
-    updateConnectionModeIndicator() {
-        // ลบ indicator เก่า (ถ้ามี)
-        const existingIndicator = document.querySelector('.connection-mode-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
-        
-        // สร้าง indicator ใหม่
-        const indicator = document.createElement('div');
-        indicator.className = `connection-mode-indicator ${this.connectionMode}-mode`;
-        
-        if (this.connectionMode === 'firebase') {
-            indicator.innerHTML = '🔥 Firebase Mode';
-        } else {
-            indicator.innerHTML = '🌐 IP Mode';
-        }
-        
-        document.body.appendChild(indicator);
-    }
-    
-    // อัปเดตข้อความปุ่มค้นหา
-    updateScanButtonText() {
-        const scanBtnText = document.getElementById('scanBtnText');
-        
-        if (this.connectionMode === 'firebase') {
-            scanBtnText.textContent = 'เชื่อมต่อ Firebase';
-        } else {
-            scanBtnText.textContent = 'ค้นหา ESP32 อัตโนมัติ';
-        }
-    }
-
-    // เริ่มต้น Firebase
-    async initFirebase() {
-        try {
-            // รอให้ FirebaseManager โหลดเสร็จ
-            if (typeof FirebaseManager !== 'undefined') {
-                this.firebaseManager = new FirebaseManager();
-                const connected = await this.firebaseManager.testConnection();
-                
-                if (connected) {
-                    this.useFirebase = true;
-                    console.log('🔥 Firebase พร้อมใช้งาน');
-                    
-                    // เริ่มฟังสถานะจาก Firebase
-                    this.firebaseManager.listenToProgress((data) => {
-                        this.updateProgress(data);
-                    });
-                    
-                    // ส่งสถานะว่าออนไลน์
-                    this.firebaseManager.sendDeviceStatus('online');
-                    
-                    // แสดงปุ่ม Firebase Mode
-                    this.showFirebaseMode();
-                } else {
-                    console.log('⚠️ Firebase เชื่อมต่อไม่ได้ - ใช้โหมด Direct IP');
-                }
-            } else {
-                console.log('⚠️ FirebaseManager ไม่พบ - ใช้โหมด Direct IP');
-            }
-        } catch (error) {
-            console.error('❌ Firebase initialization error:', error);
-        }
-    }
-    
-    // แสดงปุ่ม Firebase Mode
-    showFirebaseMode() {
-        const deviceList = document.getElementById('deviceList');
-        
-        // เพิ่มปุ่ม Firebase Mode
-        const firebaseDevice = document.createElement('div');
-        firebaseDevice.className = 'device-item firebase-mode';
-        firebaseDevice.innerHTML = `
-            <div class="device-info">
-                <div class="device-name">🔥 Firebase Mode</div>
-                <div class="device-details">ใช้ Firebase เป็นตัวกลาง (เหมาะสำหรับ iOS)</div>
-            </div>
-            <button class="btn-connect" data-firebase="true">เชื่อมต่อ</button>
-        `;
-        
-        // เพิ่มที่ด้านบนของรายการ
-        deviceList.insertBefore(firebaseDevice, deviceList.firstChild);
-        
-        // เพิ่ม event listener
-        const connectBtn = firebaseDevice.querySelector('.btn-connect');
-        connectBtn.addEventListener('click', () => {
-            this.connectFirebaseMode();
-        });
-    }
-    
-    // เชื่อมต่อ Firebase Mode
-    connectFirebaseMode() {
-        // อัปเดต scan status
-        this.scanStatus.textContent = '🔥 กำลังเชื่อมต่อ Firebase...';
-        this.scanStatus.className = 'status info';
-        
-        // ตรวจสอบ Firebase
-        if (!this.firebaseManager) {
-            this.scanStatus.textContent = '❌ Firebase ไม่พร้อมใช้งาน - กรุณาตั้งค่า Firebase ก่อน';
-            this.scanStatus.className = 'status error';
-            this.isScanning = false;
-            this.scanBtn.disabled = false;
-            this.scanBtn.classList.remove('scanning');
-            return;
-        }
-        
-        this.currentDevice = {
-            name: 'Firebase Mode',
-            ip: 'FIREBASE-MODE',
-            mdns: 'firebase.local',
-            isFirebase: true
-        };
-        
-        // อัปเดต UI
-        this.scanStatus.textContent = '✅ เชื่อมต่อ Firebase สำเร็จ!';
-        this.scanStatus.className = 'status success';
-        
-        const deviceStatus = document.getElementById('deviceStatus');
-        deviceStatus.textContent = '🔥 เชื่อมต่อผ่าน Firebase';
-        deviceStatus.className = 'device-status connected';
-        
-        // แสดงข้อมูลอุปกรณ์
-        document.getElementById('deviceName').textContent = 'Firebase Mode';
-        document.getElementById('deviceIP').textContent = 'Cloud Database';
-        
-        // แสดงส่วนควบคุม
-        const deviceControl = document.getElementById('deviceControl');
-        deviceControl.style.display = 'block';
-        deviceControl.classList.remove('hidden');
-        
-        // ตั้งค่า Event Listeners สำหรับปุ่มต่างๆ
-        this.setupControlEventListeners();
-        
-        // รีเซ็ตสถานะ scanning
-        this.isScanning = false;
-        this.scanBtn.disabled = false;
-        this.scanBtn.classList.remove('scanning');
-        
-        // เริ่ม progress monitoring
-        this.startProgressMonitoring();
-        
-        console.log('🔥 เชื่อมต่อ Firebase Mode สำเร็จ');
-    }
-
-    // ตั้งค่า Event Listeners สำหรับปุ่มควบคุม
-    setupControlEventListeners() {
-        // ปุ่มเลือกแขน
+    setupArmButtons() {
         const armButtons = document.querySelectorAll('.btn-arm');
         armButtons.forEach(btn => {
-            // ลบ event listener เก่า (ถ้ามี)
-            btn.replaceWith(btn.cloneNode(true));
-        });
-        
-        // เพิ่ม event listener ใหม่
-        document.querySelectorAll('.btn-arm').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const arm = e.currentTarget.dataset.arm;
                 this.selectedArm = arm;
@@ -1006,7 +831,9 @@ class ESP32Controller {
                 console.log(`🦾 เลือกแขน: ${arm}`);
             });
         });
-        
+    }
+    
+    setupModeButtons() {
         // ปุ่มโหมด
         const modeButtons = document.querySelectorAll('.btn-mode');
         modeButtons.forEach(btn => {
