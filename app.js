@@ -26,26 +26,43 @@ class ESP32Controller {
     }
 
     init() {
-        // แสดงปุ่มเชื่อมต่อแทนปุ่มค้นหา
+        // ⭐ แสดง UI ทันที - ไม่ต้องรอเชื่อมต่อ
+        this.deviceControl.classList.remove('hidden');
+        
+        // ตั้งค่าข้อมูลเริ่มต้น
+        document.getElementById('deviceName').textContent = 'ESP32 Controller';
+        document.getElementById('deviceIP').textContent = 'กำลังเชื่อมต่อ...';
+        document.getElementById('deviceStatus').textContent = 'กำลังเชื่อมต่อ';
+        document.getElementById('deviceStatus').className = 'status-badge offline';
+        
+        // ซ่อนปุ่มค้นหา
         if (this.scanBtn) {
-            this.scanBtn.style.display = 'block';
-            const scanBtnText = document.getElementById('scanBtnText');
-            if (scanBtnText) scanBtnText.textContent = 'เชื่อมต่อ Server';
-            
-            // เปลี่ยน event listener
-            this.scanBtn.addEventListener('click', () => {
-                this.connectWebSocket();
-            });
+            this.scanBtn.style.display = 'none';
         }
         
         const skipBtn = document.getElementById('skipBtn');
         if (skipBtn) skipBtn.style.display = 'none';
         
-        // แสดงข้อความให้กดปุ่มเชื่อมต่อ
-        this.scanStatus.textContent = '👆 กดปุ่ม "เชื่อมต่อ Server" เพื่อเริ่มใช้งาน';
+        // แสดงสถานะ
+        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server...';
         this.scanStatus.className = 'status info';
         
-        // เชื่อมต่อ WebSocket อัตโนมัติเมื่อโหลดหน้าเว็บ
+        // Setup UI
+        this.setupArmButtons();
+        this.setupModeButtons();
+        this.setupVoiceControl();
+        
+        // สร้าง HandGestureDetector (ถ้าไม่ใช่ iOS)
+        if (!handGestureDetector && !this.isIOS) {
+            try {
+                handGestureDetector = new HandGestureDetector(this);
+                console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
+            } catch (error) {
+                console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
+            }
+        }
+        
+        // ⭐ เชื่อมต่อ WebSocket อัตโนมัติ
         setTimeout(() => {
             this.connectWebSocket();
         }, 500);
@@ -91,8 +108,13 @@ class ESP32Controller {
         this.ws.onopen = () => {
             console.log('✅ WebSocket เชื่อมต่อสำเร็จ');
             
-            // เปิดปุ่มอีกครั้ง
-            if (this.scanBtn) this.scanBtn.disabled = false;
+            // อัปเดตสถานะ
+            this.scanStatus.textContent = '✅ เชื่อมต่อ Server สำเร็จ - รอ ESP32...';
+            this.scanStatus.className = 'status success';
+            
+            document.getElementById('deviceIP').textContent = 'WebSocket Connected';
+            document.getElementById('deviceStatus').textContent = 'รอ ESP32';
+            document.getElementById('deviceStatus').className = 'status-badge offline';
             
             // ลงทะเบียนเป็น web client
             this.ws.send(JSON.stringify({
@@ -145,38 +167,13 @@ class ESP32Controller {
     }
     
     handleESP32Connected() {
-        this.scanStatus.textContent = '✅ ESP32 เชื่อมต่อแล้ว - พร้อมใช้งาน!';
+        // ⭐ อัปเดตสถานะเป็น "พร้อมใช้งาน"
+        this.scanStatus.textContent = '✅✅✅ ESP32 พร้อมใช้งาน!';
         this.scanStatus.className = 'status success';
         
-        // แสดงส่วนควบคุม
-        this.deviceControl.classList.remove('hidden');
-        
-        document.getElementById('deviceName').textContent = 'ESP32 Controller';
         document.getElementById('deviceIP').textContent = 'WebSocket Connection';
-        document.getElementById('deviceStatus').textContent = 'ออนไลน์';
+        document.getElementById('deviceStatus').textContent = '🟢 พร้อมใช้งาน';
         document.getElementById('deviceStatus').className = 'status-badge online';
-        
-        // Setup arm selection buttons
-        this.setupArmButtons();
-        
-        // Setup mode buttons
-        this.setupModeButtons();
-        
-        // Setup voice control
-        this.setupVoiceControl();
-        
-        // สร้าง HandGestureDetector สำหรับกล้อง (ไม่รองรับ iOS)
-        if (!handGestureDetector && !this.isIOS) {
-            try {
-                handGestureDetector = new HandGestureDetector(this);
-                console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
-            } catch (error) {
-                console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
-            }
-        } else if (this.isIOS) {
-            console.log('ℹ️ iOS ตรวจพบ - กล้อง AI อาจทำงานช้า');
-            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
-        }
         
         // พูดว่าระบบพร้อม
         setTimeout(() => {
@@ -185,10 +182,11 @@ class ESP32Controller {
     }
     
     handleESP32Disconnected() {
-        this.scanStatus.textContent = '❌ ESP32 ตัดการเชื่อมต่อ';
+        // ⭐ อัปเดตสถานะเป็น "ไม่พร้อม"
+        this.scanStatus.textContent = '⚠️ ESP32 ตัดการเชื่อมต่อ - รอเชื่อมต่อใหม่...';
         this.scanStatus.className = 'status error';
         
-        document.getElementById('deviceStatus').textContent = 'ออฟไลน์';
+        document.getElementById('deviceStatus').textContent = '🔴 ไม่พร้อม';
         document.getElementById('deviceStatus').className = 'status-badge offline';
     }
     
