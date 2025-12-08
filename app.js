@@ -990,7 +990,9 @@ class ESP32Controller {
         document.getElementById('deviceIP').textContent = 'Cloud Database';
         
         // แสดงส่วนควบคุม
-        document.getElementById('controlSection').style.display = 'block';
+        const deviceControl = document.getElementById('deviceControl');
+        deviceControl.style.display = 'block';
+        deviceControl.classList.remove('hidden');
         
         // รีเซ็ตสถานะ scanning
         this.isScanning = false;
