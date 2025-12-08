@@ -994,9 +994,6 @@ class ESP32Controller {
             });
         });
         
-        // ปุ่มเสียง
-        this.setupVoiceRecognition();
-        
         console.log('✅ ตั้งค่า Event Listeners เสร็จแล้ว');
     }
     
