@@ -10,6 +10,15 @@ const PORT = process.env.PORT || 3000; // ใช้ PORT จาก Render หร
 // Serve static files - ใช้ __dirname เป็น root
 app.use(express.static(__dirname));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        websocket: 'ready'
+    });
+});
+
 // Route สำหรับ root path
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

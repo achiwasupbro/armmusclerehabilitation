@@ -60,58 +60,69 @@ class LanguageManager {
     updateLanguage(lang) {
         const langToggle = document.getElementById('langToggle');
         
+        // ฟังก์ชันช่วยตั้งค่า textContent อย่างปลอดภัย
+        const setText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        };
+        
+        const setTextBySelector = (selector, text) => {
+            const el = document.querySelector(selector);
+            if (el) el.textContent = text;
+        };
+        
         if (lang === 'th') {
             // ภาษาไทย - แสดง TH (ภาษาปัจจุบัน)
-            langToggle.textContent = '🌐 TH';
-            document.getElementById('mainTitle').textContent = 'ระบบควบคุมหุ่นยนต์กายภาพบำบัดแขน';
-            document.getElementById('subtitle').textContent = 'ควบคุมหุ่นยนต์กายภาพบำบัด - ไม่ต้องใส่ IP เอง';
-            document.getElementById('scanBtnText').textContent = 'ค้นหา ESP32 อัตโนมัติ';
-            document.getElementById('skipBtnText').textContent = 'ข้ามไปทดสอบ (ไม่มีบอร์ด)';
-            document.getElementById('deviceControlTitle').textContent = 'เจออุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขนแล้ว';
-            document.getElementById('deviceNameLabel').textContent = 'ชื่อ:';
-            document.getElementById('deviceAddressLabel').textContent = 'Address:';
-            document.getElementById('deviceStatusLabel').textContent = 'สถานะ:';
-            document.getElementById('armSelectionTitle').textContent = 'เลือกแขน';
-            document.getElementById('rightArmLabel').textContent = 'แขนขวา';
-            document.getElementById('leftArmLabel').textContent = 'แขนซ้าย';
-            document.getElementById('modeControlTitle').textContent = 'เลือกโหมด';
-            document.querySelector('.mode-label-1').textContent = 'โหมด 1';
-            document.querySelector('.mode-label-2').textContent = 'โหมด 2';
-            document.querySelector('.mode-label-3').textContent = 'โหมด 3';
-            document.querySelector('.mode-label-4').textContent = 'โหมด 4';
-            document.querySelector('.mode-label-5').textContent = 'หยุดการทำงาน';
-            document.getElementById('voiceControlTitle').textContent = '🎤 สั่งงานด้วยเสียง';
-            document.getElementById('startVoiceBtnText').textContent = 'เริ่มฟังคำสั่ง';
-            document.getElementById('stopVoiceBtnText').textContent = 'หยุดฟังคำสั่ง';
-            document.getElementById('cameraControlTitle').textContent = '🤖 AI ตรวจจับนิ้วมือ';
-            document.getElementById('startCameraBtnText').textContent = 'เปิดกล้อง';
-            document.getElementById('stopCameraBtnText').textContent = 'ปิดกล้อง';
+            if (langToggle) langToggle.textContent = '🌐 TH';
+            setText('mainTitle', 'ระบบควบคุมกายภาพบำบัดแขน');
+            setText('subtitle', 'ควบคุมผ่าน WebSocket - ไม่ต้องใส่ IP');
+            setText('scanBtnText', 'เชื่อมต่อ Server');
+            setText('skipBtnText', 'ข้ามไปทดสอบ (ไม่มีบอร์ด)');
+            setText('deviceControlTitle', 'เจออุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขนแล้ว');
+            setText('deviceNameLabel', 'ชื่อ:');
+            setText('deviceAddressLabel', 'การเชื่อมต่อ:');
+            setText('deviceStatusLabel', 'สถานะ:');
+            setText('armSelectionTitle', 'เลือกแขน');
+            setText('rightArmLabel', 'แขนขวา');
+            setText('leftArmLabel', 'แขนซ้าย');
+            setText('modeControlTitle', 'เลือกโหมด');
+            setTextBySelector('.mode-label-1', 'โหมด 1');
+            setTextBySelector('.mode-label-2', 'โหมด 2');
+            setTextBySelector('.mode-label-3', 'โหมด 3');
+            setTextBySelector('.mode-label-4', 'โหมด 4');
+            setTextBySelector('.mode-label-5', 'หยุดการทำงาน');
+            setText('voiceControlTitle', '🎤 สั่งงานด้วยเสียง');
+            setText('startVoiceBtnText', 'เริ่มฟังคำสั่ง');
+            setText('stopVoiceBtnText', 'หยุดฟังคำสั่ง');
+            setText('cameraControlTitle', '🤖 AI ตรวจจับนิ้วมือ');
+            setText('startCameraBtnText', 'เปิดกล้อง');
+            setText('stopCameraBtnText', 'ปิดกล้อง');
         } else {
             // ภาษาอังกฤษ - แสดง EN (ภาษาปัจจุบัน)
-            langToggle.textContent = '🌐 EN';
-            document.getElementById('mainTitle').textContent = 'Arm Physiotherapy Controller';
-            document.getElementById('subtitle').textContent = 'Control Physiotherapy Robot - Auto Discovery';
-            document.getElementById('scanBtnText').textContent = 'Scan ESP32 Automatically';
-            document.getElementById('skipBtnText').textContent = 'Skip to Test (No Board)';
-            document.getElementById('deviceControlTitle').textContent = 'Arm Rehabilitation Device Found';
-            document.getElementById('deviceNameLabel').textContent = 'Name:';
-            document.getElementById('deviceAddressLabel').textContent = 'Address:';
-            document.getElementById('deviceStatusLabel').textContent = 'Status:';
-            document.getElementById('armSelectionTitle').textContent = 'Select Arm';
-            document.getElementById('rightArmLabel').textContent = 'Right Arm';
-            document.getElementById('leftArmLabel').textContent = 'Left Arm';
-            document.getElementById('modeControlTitle').textContent = 'Select Mode';
-            document.querySelector('.mode-label-1').textContent = 'Mode 1';
-            document.querySelector('.mode-label-2').textContent = 'Mode 2';
-            document.querySelector('.mode-label-3').textContent = 'Mode 3';
-            document.querySelector('.mode-label-4').textContent = 'Mode 4';
-            document.querySelector('.mode-label-5').textContent = 'Stop';
-            document.getElementById('voiceControlTitle').textContent = '🎤 Voice Control';
-            document.getElementById('startVoiceBtnText').textContent = 'Start Listening';
-            document.getElementById('stopVoiceBtnText').textContent = 'Stop Listening';
-            document.getElementById('cameraControlTitle').textContent = '🤖 AI Hand Detection';
-            document.getElementById('startCameraBtnText').textContent = 'Start Camera';
-            document.getElementById('stopCameraBtnText').textContent = 'Stop Camera';
+            if (langToggle) langToggle.textContent = '🌐 EN';
+            setText('mainTitle', 'Arm Physiotherapy Controller');
+            setText('subtitle', 'WebSocket Control - No IP Required');
+            setText('scanBtnText', 'Connect to Server');
+            setText('skipBtnText', 'Skip to Test (No Board)');
+            setText('deviceControlTitle', 'Arm Rehabilitation Device Found');
+            setText('deviceNameLabel', 'Name:');
+            setText('deviceAddressLabel', 'Connection:');
+            setText('deviceStatusLabel', 'Status:');
+            setText('armSelectionTitle', 'Select Arm');
+            setText('rightArmLabel', 'Right Arm');
+            setText('leftArmLabel', 'Left Arm');
+            setText('modeControlTitle', 'Select Mode');
+            setTextBySelector('.mode-label-1', 'Mode 1');
+            setTextBySelector('.mode-label-2', 'Mode 2');
+            setTextBySelector('.mode-label-3', 'Mode 3');
+            setTextBySelector('.mode-label-4', 'Mode 4');
+            setTextBySelector('.mode-label-5', 'Stop');
+            setText('voiceControlTitle', '🎤 Voice Control');
+            setText('startVoiceBtnText', 'Start Listening');
+            setText('stopVoiceBtnText', 'Stop Listening');
+            setText('cameraControlTitle', '🤖 AI Hand Detection');
+            setText('startCameraBtnText', 'Start Camera');
+            setText('stopCameraBtnText', 'Stop Camera');
         }
     }
     
