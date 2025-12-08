@@ -29,10 +29,8 @@ class FirebaseManager {
     
     // สร้าง Device ID ที่ไม่ซ้ำ
     generateDeviceId() {
-        const stored = localStorage.getItem('deviceId');
-        if (stored) return stored;
-        
-        const newId = 'device_' + Math.random().toString(36).substr(2, 9);
+        // ใช้ Device ID เดียวกับ ESP32
+        return 'esp32_001';
         localStorage.setItem('deviceId', newId);
         return newId;
     }
