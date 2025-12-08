@@ -994,6 +994,9 @@ class ESP32Controller {
         deviceControl.style.display = 'block';
         deviceControl.classList.remove('hidden');
         
+        // ตั้งค่า Event Listeners สำหรับปุ่มต่างๆ
+        this.setupControlEventListeners();
+        
         // รีเซ็ตสถานะ scanning
         this.isScanning = false;
         this.scanBtn.disabled = false;
@@ -1003,6 +1006,92 @@ class ESP32Controller {
         this.startProgressMonitoring();
         
         console.log('🔥 เชื่อมต่อ Firebase Mode สำเร็จ');
+    }
+
+    // ตั้งค่า Event Listeners สำหรับปุ่มควบคุม
+    setupControlEventListeners() {
+        // ปุ่มเลือกแขน
+        const armButtons = document.querySelectorAll('.btn-arm');
+        armButtons.forEach(btn => {
+            // ลบ event listener เก่า (ถ้ามี)
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        
+        // เพิ่ม event listener ใหม่
+        document.querySelectorAll('.btn-arm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const arm = e.currentTarget.dataset.arm;
+                this.selectedArm = arm;
+                
+                // อัปเดต UI
+                document.querySelectorAll('.btn-arm').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                
+                console.log(`🦾 เลือกแขน: ${arm}`);
+            });
+        });
+        
+        // ปุ่มโหมด
+        const modeButtons = document.querySelectorAll('.btn-mode');
+        modeButtons.forEach(btn => {
+            // ลบ event listener เก่า (ถ้ามี)
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        
+        // เพิ่ม event listener ใหม่
+        document.querySelectorAll('.btn-mode').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const mode = e.currentTarget.dataset.mode;
+                console.log(`🎯 กดโหมด: ${mode}`);
+                
+                // ส่งโหมด
+                await this.handleModeClick(mode, e.currentTarget);
+            });
+        });
+        
+        // ปุ่มเสียง
+        this.setupVoiceRecognition();
+        
+        console.log('✅ ตั้งค่า Event Listeners เสร็จแล้ว');
+    }
+    
+    // จัดการการกดปุ่มโหมด
+    async handleModeClick(mode, buttonElement) {
+        if (!this.selectedArm) {
+            alert('กรุณาเลือกแขนก่อน');
+            return;
+        }
+        
+        // คำนวณโหมดจริงที่จะส่ง
+        let actualMode = parseInt(mode);
+        let displayMode = parseInt(mode);
+        
+        // ถ้าเลือกแขนซ้าย ให้เปลี่ยนโหมด 1-4 เป็น 6-9
+        if (this.selectedArm === 'left' && actualMode >= 1 && actualMode <= 4) {
+            actualMode = actualMode + 5; // 1->6, 2->7, 3->8, 4->9
+        }
+        
+        // แสดงสถานะว่ากำลังส่ง
+        const modeStatus = document.getElementById('modeStatus');
+        modeStatus.textContent = `⏳ กำลังส่งโหมด ${displayMode}...`;
+        modeStatus.className = 'mode-status info';
+        
+        // อัปเดตปุ่ม
+        document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+        
+        // ส่งโหมด
+        const success = await this.sendMode(actualMode.toString());
+        
+        // แสดงผลลัพธ์
+        if (success) {
+            modeStatus.textContent = `✅ ส่งเสร็จแล้ว - โหมด ${displayMode}`;
+            modeStatus.className = 'mode-status success';
+        } else {
+            buttonElement.classList.remove('active');
+            modeStatus.textContent = `❌ ส่งโหมด ${displayMode} ไม่สำเร็จ`;
+            modeStatus.className = 'mode-status error';
+        }
     }
 
     async sendMode(mode) {
