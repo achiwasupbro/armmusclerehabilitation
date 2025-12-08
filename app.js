@@ -26,31 +26,134 @@ class ESP32Controller {
     }
 
     init() {
-        this.scanBtn.addEventListener('click', () => {
-            // ถ้ากำลัง retry อยู่ ให้หยุดก่อน
-            this.stopRetry();
-            this.retryCount = 0;
-            this.scanDevices();
-        });
-        
-        // ปุ่มข้ามไปทดสอบ (ไม่ต้องเชื่อมต่อบอร์ด)
+        // ซ่อนปุ่มค้นหา (ไม่ใช้แล้ว)
+        if (this.scanBtn) this.scanBtn.style.display = 'none';
         const skipBtn = document.getElementById('skipBtn');
-        if (skipBtn) {
-            skipBtn.addEventListener('click', () => {
-                this.stopRetry();
-                this.skipToTestMode();
-            });
+        if (skipBtn) skipBtn.style.display = 'none';
+        
+        // เชื่อมต่อ WebSocket แทน
+        this.connectWebSocket();
+    }
+    
+    connectWebSocket() {
+        // ตรวจสอบว่าอยู่บน Production (Render) หรือ Local
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        
+        let serverUrl;
+        if (isProduction) {
+            // ใช้ wss:// (secure) สำหรับ Production
+            serverUrl = `wss://${window.location.hostname}`;
+        } else {
+            // ใช้ ws:// สำหรับ Local
+            serverUrl = 'ws://localhost:3000';
         }
         
-        // Auto scan on load
-        window.addEventListener('load', () => {
-            setTimeout(() => this.scanDevices(), 1000);
-        });
+        console.log('🔌 กำลังเชื่อมต่อ WebSocket:', serverUrl);
+        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server...';
+        this.scanStatus.className = 'status info';
         
-        // หยุด retry เมื่อปิดหน้าเว็บ
-        window.addEventListener('beforeunload', () => {
-            this.stopRetry();
-        });
+        this.ws = new WebSocket(serverUrl);
+        
+        this.ws.onopen = () => {
+            console.log('✅ WebSocket เชื่อมต่อสำเร็จ');
+            
+            // ลงทะเบียนเป็น web client
+            this.ws.send(JSON.stringify({
+                type: 'register',
+                client: 'web'
+            }));
+            
+            this.scanStatus.textContent = '✅ เชื่อมต่อ Server สำเร็จ - รอ ESP32...';
+            this.scanStatus.className = 'status success';
+        };
+        
+        this.ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('📨 Received:', data);
+                
+                if (data.type === 'registered') {
+                    console.log('✅ ลงทะเบียนสำเร็จ');
+                }
+                else if (data.type === 'esp32_connected') {
+                    this.handleESP32Connected();
+                }
+                else if (data.type === 'esp32_disconnected') {
+                    this.handleESP32Disconnected();
+                }
+                else if (data.type === 'progress') {
+                    this.updateProgressDisplay(data);
+                }
+            } catch (error) {
+                console.error('❌ Error parsing message:', error);
+            }
+        };
+        
+        this.ws.onclose = () => {
+            console.log('❌ WebSocket ตัดการเชื่อมต่อ');
+            this.scanStatus.textContent = '❌ ตัดการเชื่อมต่อ Server - กำลังลองใหม่...';
+            this.scanStatus.className = 'status error';
+            
+            // ลองเชื่อมต่อใหม่หลัง 3 วินาที
+            setTimeout(() => this.connectWebSocket(), 3000);
+        };
+        
+        this.ws.onerror = (error) => {
+            console.error('❌ WebSocket error:', error);
+            this.scanStatus.textContent = '❌ เกิดข้อผิดพลาด - ตรวจสอบว่า Server ทำงานอยู่หรือไม่';
+            this.scanStatus.className = 'status error';
+        };
+    }
+    
+    handleESP32Connected() {
+        this.scanStatus.textContent = '✅ ESP32 เชื่อมต่อแล้ว - พร้อมใช้งาน!';
+        this.scanStatus.className = 'status success';
+        
+        // แสดงส่วนควบคุม
+        this.deviceControl.classList.remove('hidden');
+        
+        document.getElementById('deviceName').textContent = 'ESP32 Controller';
+        document.getElementById('deviceIP').textContent = 'WebSocket Connection';
+        document.getElementById('deviceStatus').textContent = 'ออนไลน์';
+        document.getElementById('deviceStatus').className = 'status-badge online';
+        
+        // Setup arm selection buttons
+        this.setupArmButtons();
+        
+        // Setup mode buttons
+        this.setupModeButtons();
+        
+        // Setup voice control
+        this.setupVoiceControl();
+        
+        // สร้าง HandGestureDetector สำหรับกล้อง (ไม่รองรับ iOS)
+        if (!handGestureDetector && !this.isIOS) {
+            try {
+                handGestureDetector = new HandGestureDetector(this);
+                console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
+            } catch (error) {
+                console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
+            }
+        } else if (this.isIOS) {
+            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
+            const cameraSection = document.querySelector('.camera-control');
+            if (cameraSection) {
+                cameraSection.style.display = 'none';
+            }
+        }
+        
+        // พูดว่าระบบพร้อม
+        setTimeout(() => {
+            this.speakReady();
+        }, 500);
+    }
+    
+    handleESP32Disconnected() {
+        this.scanStatus.textContent = '❌ ESP32 ตัดการเชื่อมต่อ';
+        this.scanStatus.className = 'status error';
+        
+        document.getElementById('deviceStatus').textContent = 'ออฟไลน์';
+        document.getElementById('deviceStatus').className = 'status-badge offline';
     }
     
     skipToTestMode() {
@@ -898,95 +1001,35 @@ class ESP32Controller {
     }
 
     async sendMode(mode) {
-        if (!this.currentDevice) {
+        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
             const modeStatus = document.getElementById('modeStatus');
-            modeStatus.textContent = `❌ ไม่พบ ESP32 - กรุณาค้นหาก่อน`;
+            modeStatus.textContent = '❌ WebSocket ไม่ได้เชื่อมต่อ';
             modeStatus.className = 'mode-status error';
-            console.error('❌ ไม่พบ ESP32 device');
+            console.error('❌ WebSocket ไม่ได้เชื่อมต่อ');
             return false;
         }
         
-        // ถ้าอยู่ในโหมดทดสอบ ไม่ต้องส่งจริง
-        if (this.currentDevice.ip === 'TEST-MODE') {
-            // แปลงโหมด 6-9 เป็น 1-4 สำหรับแสดงผล
-            const displayMode = (parseInt(mode) >= 6 && parseInt(mode) <= 9) ? (parseInt(mode) - 5) : parseInt(mode);
-            console.log(`🧪 [TEST MODE] จำลองการส่งโหมด ${displayMode} (ส่งจริง: ${mode}) (ไม่ได้ส่งจริง)`);
-            return true; // return success เพื่อให้ UI แสดงว่าส่งสำเร็จ
-        }
-        
-        // ใช้ IP address แทน mDNS เพราะ mDNS อาจไม่ทำงาน
-        // ถ้า device มี IP จริงให้ใช้ IP, ถ้าไม่มีให้ใช้ mDNS name
-        const address = this.currentDevice.ip && this.currentDevice.ip !== this.currentDevice.mdns
-            ? this.currentDevice.ip 
-            : (this.currentDevice.mdns || this.currentDevice.ip);
-        const baseUrl = `http://${address}`;
-        const modeUrl = `${baseUrl}/mode`;
-        
-        // แปลงโหมด 6-9 เป็น 1-4 สำหรับแสดงผล
         const displayMode = (parseInt(mode) >= 6 && parseInt(mode) <= 9) ? (parseInt(mode) - 5) : parseInt(mode);
-        console.log(`📡 กำลังส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${modeUrl}`);
-        console.log(`📦 Device info:`, this.currentDevice);
+        console.log(`📤 ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ผ่าน WebSocket`);
         
         try {
-            // ส่งโหมดไปที่ ESP32 ด้วย POST method พร้อม arm
-            console.log(`🔄 ส่ง POST request ไปที่ ${modeUrl}`);
-            const payload = { 
-                mode: parseInt(mode),
-                arm: this.selectedArm || 'right'  // ส่ง arm ด้วย
-            };
-            console.log(`📦 Payload:`, payload);
-            const response = await fetch(modeUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload),
-                mode: 'cors',
-                cache: 'no-cache'
-            });
+            this.ws.send(JSON.stringify({
+                type: 'mode',
+                mode: parseInt(mode)
+            }));
             
-            console.log(`📥 Response status: ${response.status}`);
-            console.log(`📥 Response ok: ${response.ok}`);
+            console.log(`✅ ส่งโหมด ${displayMode} สำเร็จ`);
             
-            if (response.ok) {
-                const data = await response.text();
-                console.log(`✅ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${modeUrl} สำเร็จ:`, data);
-                
-                // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
-                if (parseInt(mode) === 5) {
-                    this.currentRunningMode = null;
-                    console.log('🛑 รีเซ็ตสถานะโหมดทันทีหลังส่งโหมด 5');
-                }
-                
-                return true;
-            } else {
-                console.error(`❌ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไม่สำเร็จ: ${response.status} ${response.statusText}`);
-                return false;
+            // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
+            if (parseInt(mode) === 5) {
+                this.currentRunningMode = null;
+                console.log('🛑 รีเซ็ตสถานะโหมดทันทีหลังส่งโหมด 5');
             }
+            
+            return true;
         } catch (error) {
-            console.error(`❌ POST request failed:`, error);
-            // ถ้า CORS ไม่ได้ ลองใช้ GET method
-            try {
-                const getUrl = `${baseUrl}/mode?mode=${mode}`;
-                console.log(`🔄 ลองส่ง GET request ไปที่ ${getUrl}`);
-                await fetch(getUrl, {
-                    method: 'GET',
-                    mode: 'no-cors',
-                    cache: 'no-cache'
-                });
-                console.log(`✅ ส่งโหมด ${displayMode} (ส่งจริง: ${mode}) ไปที่ ${baseUrl} (GET method - no-cors)`);
-                
-                // ถ้าเป็นโหมด 5 (หยุด) ให้รีเซ็ตสถานะทันที
-                if (parseInt(mode) === 5) {
-                    this.currentRunningMode = null;
-                    console.log('🛑 รีเซ็ตสถานะโหมดทันทีหลังส่งโหมด 5 (GET)');
-                }
-                
-                return true;
-            } catch (e) {
-                console.error('❌ GET request ก็ล้มเหลว:', e);
-                return false;
-            }
+            console.error('❌ ส่งโหมดผ่าน WebSocket ล้มเหลว:', error);
+            return false;
         }
     }
 

@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หุ่นยนต์กายภาพบำบัดแขน</title>
+    <title>หุ่นยนต์กายภาพบำบัดแขน (WebSocket)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="กายภาพบำบัด">
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1 id="mainTitle">ระบบควบคุมกายภาพบำบัดแขน</h1>
-            <p class="subtitle" id="subtitle">ควบคุมหุ่นยนต์กายภาพบำบัด - ไม่ต้องใส่ IP เอง</p>
+            <p class="subtitle" id="subtitle">ควบคุมผ่าน WebSocket - ไม่ต้องใส่ IP</p>
             <button id="langToggle" class="btn btn-lang">🌐 TH</button>
         </header>
 
         <div class="discovery-section">
-            <button id="scanBtn" class="btn btn-primary">
+            <button id="scanBtn" class="btn btn-primary" style="display: none;">
                 <span class="btn-icon">🔍</span>
                 <span id="scanBtnText">ค้นหา ESP32 อัตโนมัติ</span>
             </button>
-            <button id="skipBtn" class="btn btn-skip">
+            <button id="skipBtn" class="btn btn-skip" style="display: none;">
                 <span class="btn-icon">⏭️</span>
                 <span id="skipBtnText">ข้ามไปทดสอบ (ไม่มีบอร์ด)</span>
             </button>
@@ -39,7 +36,7 @@
             <h2 id="deviceControlTitle">เจออุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขนแล้ว</h2>
             <div class="device-info">
                 <p><strong id="deviceNameLabel">ชื่อ:</strong> <span id="deviceName"></span></p>
-                <p><strong id="deviceAddressLabel">Address:</strong> <span id="deviceIP"></span></p>
+                <p><strong id="deviceAddressLabel">การเชื่อมต่อ:</strong> <span id="deviceIP"></span></p>
                 <p><strong id="deviceStatusLabel">สถานะ:</strong> <span id="deviceStatus" class="status-badge">-</span></p>
             </div>
             
@@ -121,63 +118,6 @@
     </div>
 
     <script src="language.js"></script>
-    <script src="handgesture.js"></script>
-    <script src="app.js"></script>
-    
-    <script>
-    // ตรวจสอบว่า MediaPipe โหลดสำเร็จหรือไม่
-    window.addEventListener('load', () => {
-        const statusDiv = document.getElementById('mediapipeStatus');
-        const startBtn = document.getElementById('startCameraBtn');
-        
-        // เช็คทันทีก่อน
-        function checkMediaPipe() {
-            if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
-                console.error('❌ MediaPipe ยังไม่โหลด...');
-                if (statusDiv) {
-                    statusDiv.innerHTML = '⏳ กำลังโหลด AI กล้อง... (ใช้เวลา 5-10 วินาที)';
-                    statusDiv.style.background = '#fff3cd';
-                    statusDiv.style.color = '#856404';
-                }
-                if (startBtn) {
-                    startBtn.disabled = true;
-                    startBtn.style.opacity = '0.5';
-                }
-                return false;
-            } else {
-                console.log('✅ MediaPipe โหลดสำเร็จ');
-                if (statusDiv) {
-                    statusDiv.innerHTML = '✅ กล้องพร้อมใช้งาน';
-                    statusDiv.style.background = '#d4edda';
-                    statusDiv.style.color = '#155724';
-                }
-                if (startBtn) {
-                    startBtn.disabled = false;
-                    startBtn.style.opacity = '1';
-                }
-                return true;
-            }
-        }
-        
-        // เช็คทุก 1 วินาที จนกว่าจะโหลดสำเร็จ หรือเกิน 15 วินาที
-        let attempts = 0;
-        const maxAttempts = 15;
-        const checkInterval = setInterval(() => {
-            attempts++;
-            if (checkMediaPipe()) {
-                clearInterval(checkInterval);
-            } else if (attempts >= maxAttempts) {
-                clearInterval(checkInterval);
-                console.error('❌ MediaPipe โหลดไม่สำเร็จ');
-                if (statusDiv) {
-                    statusDiv.innerHTML = '❌ AI กล้องโหลดไม่สำเร็จ<br><small>ลองรีเฟรชหน้าเว็บ หรือตรวจสอบอินเทอร์เน็ต</small>';
-                    statusDiv.style.background = '#f8d7da';
-                    statusDiv.style.color = '#721c24';
-                }
-            }
-        }, 1000);
-    });
-    </script>
+    <script src="app_websocket.js"></script>
 </body>
 </html>
-
