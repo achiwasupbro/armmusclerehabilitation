@@ -26,16 +26,33 @@ class ESP32Controller {
     }
 
     init() {
-        // ซ่อนปุ่มค้นหา (ไม่ใช้แล้ว)
-        if (this.scanBtn) this.scanBtn.style.display = 'none';
+        // แสดงปุ่มเชื่อมต่อแทนปุ่มค้นหา
+        if (this.scanBtn) {
+            this.scanBtn.style.display = 'block';
+            const scanBtnText = document.getElementById('scanBtnText');
+            if (scanBtnText) scanBtnText.textContent = 'เชื่อมต่อ Server';
+            
+            // เปลี่ยน event listener
+            this.scanBtn.addEventListener('click', () => {
+                this.connectWebSocket();
+            });
+        }
+        
         const skipBtn = document.getElementById('skipBtn');
         if (skipBtn) skipBtn.style.display = 'none';
         
-        // เชื่อมต่อ WebSocket แทน
-        this.connectWebSocket();
+        // แสดงข้อความให้กดปุ่มเชื่อมต่อ
+        this.scanStatus.textContent = '👆 กดปุ่ม "เชื่อมต่อ Server" เพื่อเริ่มใช้งาน';
+        this.scanStatus.className = 'status info';
     }
     
     connectWebSocket() {
+        // ปิด WebSocket เก่า (ถ้ามี)
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
+        }
+        
         // ตรวจสอบว่าอยู่บน Production (Render) หรือ Local
         const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
         
@@ -49,13 +66,19 @@ class ESP32Controller {
         }
         
         console.log('🔌 กำลังเชื่อมต่อ WebSocket:', serverUrl);
-        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server...';
+        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server... (อาจใช้เวลา 30 วินาทีถ้า Server กำลัง Wake up)';
         this.scanStatus.className = 'status info';
+        
+        // ปิดปุ่มชั่วคราว
+        if (this.scanBtn) this.scanBtn.disabled = true;
         
         this.ws = new WebSocket(serverUrl);
         
         this.ws.onopen = () => {
             console.log('✅ WebSocket เชื่อมต่อสำเร็จ');
+            
+            // เปิดปุ่มอีกครั้ง
+            if (this.scanBtn) this.scanBtn.disabled = false;
             
             // ลงทะเบียนเป็น web client
             this.ws.send(JSON.stringify({
@@ -91,17 +114,19 @@ class ESP32Controller {
         
         this.ws.onclose = () => {
             console.log('❌ WebSocket ตัดการเชื่อมต่อ');
-            this.scanStatus.textContent = '❌ ตัดการเชื่อมต่อ Server - กำลังลองใหม่...';
+            this.scanStatus.textContent = '❌ ตัดการเชื่อมต่อ - กดปุ่ม "เชื่อมต่อ Server" เพื่อเชื่อมต่อใหม่';
             this.scanStatus.className = 'status error';
             
-            // ลองเชื่อมต่อใหม่หลัง 3 วินาที
-            setTimeout(() => this.connectWebSocket(), 3000);
+            // ไม่ auto reconnect - ให้ผู้ใช้กดปุ่มเอง
         };
         
         this.ws.onerror = (error) => {
             console.error('❌ WebSocket error:', error);
-            this.scanStatus.textContent = '❌ เกิดข้อผิดพลาด - ตรวจสอบว่า Server ทำงานอยู่หรือไม่';
+            this.scanStatus.textContent = '❌ เกิดข้อผิดพลาด - กดปุ่ม "เชื่อมต่อ Server" เพื่อลองใหม่';
             this.scanStatus.className = 'status error';
+            
+            // เปิดปุ่มอีกครั้ง
+            if (this.scanBtn) this.scanBtn.disabled = false;
         };
     }
     
