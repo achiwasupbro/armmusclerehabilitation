@@ -232,11 +232,7 @@ class ESP32Controller {
             }
         } else if (this.isIOS) {
             console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
-            // ซ่อนปุ่มกล้อง
-            const cameraSection = document.querySelector('.camera-control');
-            if (cameraSection) {
-                cameraSection.style.display = 'none';
-            }
+            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
         }
         
         // พูดว่าระบบพร้อม
@@ -725,11 +721,7 @@ class ESP32Controller {
             }
         } else if (this.isIOS) {
             console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
-            // ซ่อนปุ่มกล้อง
-            const cameraSection = document.querySelector('.camera-control');
-            if (cameraSection) {
-                cameraSection.style.display = 'none';
-            }
+            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
         }
     }
 
