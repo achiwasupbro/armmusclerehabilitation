@@ -43,6 +43,18 @@ class ESP32Controller {
         const skipBtn = document.getElementById('skipBtn');
         if (skipBtn) skipBtn.style.display = 'none';
         
+        // ⭐ Setup ปุ่ม Reconnect
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        if (reconnectBtn) {
+            reconnectBtn.addEventListener('click', () => {
+                console.log('🔄 กดปุ่ม Reconnect');
+                this.scanStatus.textContent = '🔄 กำลังเชื่อมต่อใหม่...';
+                this.scanStatus.className = 'status info';
+                reconnectBtn.classList.add('hidden');
+                this.connectWebSocket();
+            });
+        }
+        
         // แสดงสถานะ
         this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server...';
         this.scanStatus.className = 'status info';
@@ -171,6 +183,12 @@ class ESP32Controller {
         this.scanStatus.textContent = '✅✅✅ ESP32 พร้อมใช้งาน!';
         this.scanStatus.className = 'status success';
         
+        // ⭐ ซ่อนปุ่ม Reconnect เมื่อเชื่อมต่อสำเร็จ
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        if (reconnectBtn) {
+            reconnectBtn.classList.add('hidden');
+        }
+        
         document.getElementById('deviceIP').textContent = 'WebSocket Connection';
         document.getElementById('deviceStatus').textContent = '🟢 พร้อมใช้งาน';
         document.getElementById('deviceStatus').className = 'status-badge online';
@@ -183,8 +201,14 @@ class ESP32Controller {
     
     handleESP32Disconnected() {
         // ⭐ อัปเดตสถานะเป็น "ไม่พร้อม"
-        this.scanStatus.textContent = '⚠️ ESP32 ตัดการเชื่อมต่อ - รอเชื่อมต่อใหม่...';
+        this.scanStatus.textContent = '⚠️ ESP32 ตัดการเชื่อมต่อ';
         this.scanStatus.className = 'status error';
+        
+        // ⭐ แสดงปุ่ม Reconnect
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        if (reconnectBtn) {
+            reconnectBtn.classList.remove('hidden');
+        }
         
         document.getElementById('deviceStatus').textContent = '🔴 ไม่พร้อม';
         document.getElementById('deviceStatus').className = 'status-badge offline';
