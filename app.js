@@ -44,6 +44,11 @@ class ESP32Controller {
         // แสดงข้อความให้กดปุ่มเชื่อมต่อ
         this.scanStatus.textContent = '👆 กดปุ่ม "เชื่อมต่อ Server" เพื่อเริ่มใช้งาน';
         this.scanStatus.className = 'status info';
+        
+        // เชื่อมต่อ WebSocket อัตโนมัติเมื่อโหลดหน้าเว็บ
+        setTimeout(() => {
+            this.connectWebSocket();
+        }, 500);
     }
     
     connectWebSocket() {
@@ -58,7 +63,8 @@ class ESP32Controller {
         
         let serverUrl;
         if (isProduction) {
-            // ใช้ wss:// (secure) สำหรับ Production
+            // ใช้ wss:// (secure WebSocket) สำหรับ Production
+            // Render จะใช้ port 443 (default สำหรับ wss://)
             serverUrl = `wss://${window.location.hostname}`;
         } else {
             // ใช้ ws:// สำหรับ Local
@@ -66,13 +72,21 @@ class ESP32Controller {
         }
         
         console.log('🔌 กำลังเชื่อมต่อ WebSocket:', serverUrl);
-        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server... (อาจใช้เวลา 30 วินาทีถ้า Server กำลัง Wake up)';
+        this.scanStatus.textContent = '🔌 กำลังเชื่อมต่อ Server... (อาจใช้เวลา 30-50 วินาทีถ้า Server กำลัง Wake up)';
         this.scanStatus.className = 'status info';
         
         // ปิดปุ่มชั่วคราว
         if (this.scanBtn) this.scanBtn.disabled = true;
         
-        this.ws = new WebSocket(serverUrl);
+        try {
+            this.ws = new WebSocket(serverUrl);
+        } catch (error) {
+            console.error('❌ ไม่สามารถสร้าง WebSocket:', error);
+            this.scanStatus.textContent = '❌ ไม่สามารถเชื่อมต่อ WebSocket - ตรวจสอบ URL';
+            this.scanStatus.className = 'status error';
+            if (this.scanBtn) this.scanBtn.disabled = false;
+            return;
+        }
         
         this.ws.onopen = () => {
             console.log('✅ WebSocket เชื่อมต่อสำเร็จ');

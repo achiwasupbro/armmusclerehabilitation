@@ -9,6 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="กายภาพบำบัด">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
@@ -19,13 +22,9 @@
         </header>
 
         <div class="discovery-section">
-            <button id="scanBtn" class="btn btn-primary" style="display: none;">
-                <span class="btn-icon">🔍</span>
-                <span id="scanBtnText">ค้นหา ESP32 อัตโนมัติ</span>
-            </button>
-            <button id="skipBtn" class="btn btn-skip" style="display: none;">
-                <span class="btn-icon">⏭️</span>
-                <span id="skipBtnText">ข้ามไปทดสอบ (ไม่มีบอร์ด)</span>
+            <button id="scanBtn" class="btn btn-primary">
+                <span class="btn-icon">🔌</span>
+                <span id="scanBtnText">เชื่อมต่อ Server</span>
             </button>
             <div id="scanStatus" class="status"></div>
         </div>
@@ -118,6 +117,7 @@
     </div>
 
     <script src="language.js"></script>
-    <script src="app_websocket.js"></script>
+    <script src="handgesture.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
