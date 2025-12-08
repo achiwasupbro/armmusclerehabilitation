@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - ระบบควบคุมกายภาพบำบัดแขน</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .instructions {
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+        .instructions h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .url {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 QR Code สำหรับ iOS/iPad</h1>
+        <p>สแกน QR Code นี้ด้วย iPhone/iPad เพื่อเข้าใช้งานระบบ</p>
+        
+        <div class="qr-container">
+            <img id="qrcode" src="" alt="QR Code" style="max-width: 300px;">
+        </div>
+        
+        <div class="url">
+            <strong>URL:</strong> <span id="url"></span>
+        </div>
+        
+        <div class="instructions">
+            <h3>📱 วิธีใช้งานสำหรับ iOS/iPad:</h3>
+            <ol>
+                <li><strong>เปิดกล้อง</strong> บน iPhone/iPad</li>
+                <li><strong>สแกน QR Code</strong> ด้านบน</li>
+                <li><strong>แตะที่ลิงก์</strong> ที่ขึ้นมา</li>
+                <li><strong>Safari จะเปิด</strong>เว็บควบคุมอัตโนมัติ</li>
+                <li><strong>บันทึกเป็น Bookmark</strong> เพื่อเข้าใช้งานง่ายครั้งต่อไป</li>
+            </ol>
+        </div>
+        
+        <div class="instructions">
+            <h3>🔖 เพิ่มไปหน้าจอหลัก (Home Screen):</h3>
+            <ol>
+                <li>เปิดเว็บใน Safari</li>
+                <li>แตะปุ่ม <strong>Share</strong> (ไอคอนแชร์)</li>
+                <li>เลือก <strong>"Add to Home Screen"</strong></li>
+                <li>ตั้งชื่อ: "กายภาพบำบัดแขน"</li>
+                <li>แตะ <strong>"Add"</strong></li>
+            </ol>
+            <p>✨ ตอนนี้สามารถเปิดจากหน้าจอหลักได้เหมือนแอปเลย!</p>
+        </div>
+        
+        <div class="note">
+            <strong>💡 หมายเหตุ:</strong><br>
+            - ต้องเชื่อมต่อ WiFi เดียวกับ ESP32<br>
+            - ใช้ได้เฉพาะ Safari (ไม่ใช่ Chrome)<br>
+            - ถ้าเข้าไม่ได้ ให้ลองใช้ IP: <code>http://10.50.56.1</code>
+        </div>
+    </div>
+    
+    <script>
+        // สร้าง QR Code โดยใช้ API
+        const urls = [
+            'http://esp32-controller.local',
+            'http://10.50.56.1'
+        ];
+        
+        // ใช้ URL แรก (mDNS)
+        const url = urls[0];
+        document.getElementById('url').textContent = url;
+        
+        // สร้าง QR Code ด้วย API
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+        document.getElementById('qrcode').src = qrApiUrl;
+        
+        // แสดง URL ทางเลือก
+        const altUrl = document.createElement('div');
+        altUrl.className = 'url';
+        altUrl.style.marginTop = '10px';
+        altUrl.innerHTML = `<strong>URL ทางเลือก (ถ้า mDNS ไม่ทำงาน):</strong> ${urls[1]}`;
+        document.querySelector('.qr-container').after(altUrl);
+    </script>
+</body>
+</html>
