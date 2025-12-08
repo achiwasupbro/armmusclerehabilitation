@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: arm-rehabilitation-websocket
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
