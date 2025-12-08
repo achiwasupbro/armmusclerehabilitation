@@ -18,6 +18,10 @@
         </header>
 
         <div class="discovery-section">
+            <button id="connectionModeBtn" class="btn btn-connection-mode">
+                <span class="btn-icon">⚙️</span>
+                <span id="connectionModeBtnText">เลือกวิธีการเชื่อมต่อ</span>
+            </button>
             <button id="scanBtn" class="btn btn-primary">
                 <span class="btn-icon">🔍</span>
                 <span id="scanBtnText">ค้นหา ESP32 อัตโนมัติ</span>
@@ -115,7 +119,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Connection Mode Modal -->
+    <div id="connectionModeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">เลือกวิธีการเชื่อมต่อ</h2>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="modalDescription">เลือกวิธีการเชื่อมต่อที่เหมาะสมกับอุปกรณ์ของคุณ</p>
+                
+                <div class="connection-options">
+                    <div class="connection-option" data-mode="ip">
+                        <div class="option-icon">🌐</div>
+                        <div class="option-content">
+                            <h3 id="ipModeTitle">เชื่อมต่อผ่าน IP</h3>
+                            <p id="ipModeDesc">เหมาะสำหรับ Android, PC, Mac<br>เชื่อมต่อโดยตรงกับ ESP32</p>
+                            <div class="option-pros">
+                                <span class="pro-item">✅ เร็วกว่า</span>
+                                <span class="pro-item">✅ เสถียรกว่า</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="connection-option" data-mode="firebase">
+                        <div class="option-icon">🔥</div>
+                        <div class="option-content">
+                            <h3 id="firebaseModeTitle">เชื่อมต่อผ่าน Firebase</h3>
+                            <p id="firebaseModeDesc">เหมาะสำหรับ iOS (iPhone/iPad)<br>ใช้ Firebase เป็นตัวกลาง</p>
+                            <div class="option-pros">
+                                <span class="pro-item">✅ ใช้งานได้ใน iOS</span>
+                                <span class="pro-item">✅ ไม่ต้องกังวลเรื่อง Network</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-note">
+                    <p id="modalNote">💡 หมายเหตุ: สามารถเปลี่ยนวิธีการเชื่อมต่อได้ตลอดเวลา</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="language.js"></script>
+    <script type="module" src="firebase-config.js"></script>
     <script src="handgesture.js"></script>
     <script src="app.js"></script>
     

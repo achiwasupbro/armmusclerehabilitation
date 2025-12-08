@@ -821,3 +821,229 @@ header h1 {
     text-align: center;
     line-height: 1.4;
 }
+/* Connection Mode Button */
+.btn-connection-mode {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-connection-mode:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #eee;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.modal-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body p {
+    margin-bottom: 20px;
+    color: #666;
+    text-align: center;
+}
+
+.connection-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.connection-option {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.connection-option:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
+}
+
+.connection-option.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+}
+
+.option-icon {
+    font-size: 3rem;
+    margin-right: 20px;
+    min-width: 80px;
+    text-align: center;
+}
+
+.option-content {
+    flex: 1;
+}
+
+.option-content h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.option-content p {
+    margin: 0 0 12px 0;
+    color: #666;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.option-pros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pro-item {
+    background: #e8f5e8;
+    color: #2d5a2d;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.modal-note {
+    background: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.modal-note p {
+    margin: 0;
+    color: #0066cc;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Responsive Design for Modal */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .connection-options {
+        flex-direction: column;
+    }
+    
+    .connection-option {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .option-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .option-content p {
+        text-align: center;
+    }
+    
+    .option-pros {
+        justify-content: center;
+    }
+}
+
+/* Connection Mode Indicator */
+.connection-mode-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.connection-mode-indicator.ip-mode {
+    color: #0066cc;
+    border: 1px solid #b3d9ff;
+}
+
+.connection-mode-indicator.firebase-mode {
+    color: #ff6b35;
+    border: 1px solid #ffb3a0;
+}
