@@ -7,8 +7,13 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000; // ใช้ PORT จาก Render หรือ 3000 สำหรับ local
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'armmusclerehabilitation')));
+// Serve static files - ใช้ __dirname เป็น root
+app.use(express.static(__dirname));
+
+// Route สำหรับ root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Create HTTP server
 const server = http.createServer(app);
