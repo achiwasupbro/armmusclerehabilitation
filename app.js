@@ -181,7 +181,7 @@ class ESP32Controller {
     
     handleESP32Connected() {
         // ⭐ อัปเดตสถานะเป็น "พร้อมใช้งาน"
-        this.scanStatus.textContent = '✅✅✅ ESP32 พร้อมใช้งาน!';
+        this.scanStatus.textContent = '✅หุ่นยนต์พร้อมใช้งาน!';
         this.scanStatus.className = 'status success';
         
         // ⭐ ซ่อนปุ่ม Reconnect เมื่อเชื่อมต่อสำเร็จ
