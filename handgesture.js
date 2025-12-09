@@ -716,31 +716,46 @@ class HandGestureDetector {
             this.countdownElement.style.display = 'block'; // แสดงผล
             this.countdownElement.style.visibility = 'visible'; // แสดงผล
             
-            // ตรวจสอบว่านิ้วยังคงเหมือนเดิมหรือไม่ (ใช้ค่าเสถียร)
+            // ⭐ ตรวจสอบว่านิ้วยังคงเหมือนเดิมหรือไม่
             const currentStable = this.calculateStableFingerCount();
-            const diff = Math.abs(currentStable - this.stableFingerCount);
             
-            // ถ้ากำลังนับถอยหลัง RESET (0 นิ้ว) ให้ตรวจสอบแบบเข้มงวด
+            // ⭐ ถ้าอยู่ในโหมด SELECT_ARM และชู 3-5 นิ้ว → หยุดทันที!
+            if (this.gestureState === 'SELECT_ARM') {
+                if (currentStable >= 3 && currentStable <= 5) {
+                    console.log(`🛑 SELECT_ARM: ตรวจพบ ${currentStable} นิ้ว - หยุดทันที!`);
+                    this.resetCountdown();
+                    
+                    // แสดงข้อความเตือน
+                    if (this.gestureStatusElement) {
+                        this.gestureStatusElement.textContent = '⚠️ กรุณาชู 1 นิ้ว (แขนขวา) หรือ 2 นิ้ว (แขนซ้าย) เท่านั้น';
+                        this.gestureStatusElement.className = 'gesture-status warning';
+                        this.gestureStatusElement.style.display = 'block';
+                    }
+                    return; // ⭐ หยุดทันที
+                }
+                
+                // ⭐ ถ้านิ้วเปลี่ยนจาก 1 หรือ 2 → หยุด
+                if (currentStable !== this.stableFingerCount && currentStable !== -1) {
+                    console.log(`🛑 SELECT_ARM: นิ้วเปลี่ยนจาก ${this.stableFingerCount} → ${currentStable} - หยุด!`);
+                    this.resetCountdown();
+                    return;
+                }
+            }
+            
+            // ⭐ ถ้ากำลังนับถอยหลัง RESET (0 นิ้ว)
             if (this.stableFingerCount === 0 && this.gestureState === 'SELECT_MODE') {
-                // ต้องยังเป็น 0 นิ้วอย่างน้อย 4 จาก 5 ค่า
                 const zeroCount = this.fingerCountHistory.filter(f => f === 0).length;
                 if (zeroCount < 4) {
                     console.log(`⚠️ ไม่ใช่กำปั้นแล้ว - ยกเลิก RESET`);
                     this.resetCountdown();
                     return;
                 }
-            } else {
-                // นิ้วอื่นๆ - ตรวจสอบปกติ
-                // ถ้าเปลี่ยนมากกว่า 1 ให้รีเซ็ต
-                if (diff > 1) {
-                    // ตรวจสอบอีกครั้งก่อนรีเซ็ต (อาจเป็น noise)
-                    const stableCount = this.fingerCountHistory.filter(f => f === this.stableFingerCount).length;
-                    if (stableCount < 2) {
-                        // มีค่าที่เหมือนกันน้อยกว่า 2 - รีเซ็ต
-                        console.log(`⚠️ นิ้วเปลี่ยนระหว่าง countdown - รีเซ็ต countdown`);
-                        this.resetCountdown();
-                        return;
-                    }
+            } else if (this.gestureState === 'SELECT_MODE') {
+                // ⭐ โหมดอื่นๆ - ถ้านิ้วเปลี่ยน → หยุด
+                if (currentStable !== this.stableFingerCount && currentStable !== -1) {
+                    console.log(`⚠️ นิ้วเปลี่ยนระหว่าง countdown - รีเซ็ต`);
+                    this.resetCountdown();
+                    return;
                 }
             }
         } else {
