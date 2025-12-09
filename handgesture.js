@@ -56,6 +56,9 @@ class HandGestureDetector {
         this.stabilityThreshold = 3; // ต้องมีนิ้วเหมือนกันอย่างน้อย 3 จาก 5 ค่า
         this.lastStableFingerCount = 0; // ค่าเสถียรล่าสุด
         
+        // ⭐ Flag สำหรับเล่นเสียง armconfirm.wav ครั้งเดียว
+        this.hasPlayedCameraWelcome = false;
+        
         console.log('✅ HandGestureDetector กำลังเริ่มต้น...');
         this.init();
     }
@@ -193,6 +196,14 @@ class HandGestureDetector {
             // ตั้งค่าเริ่มต้นให้เลือกแขน
             this.gestureState = 'SELECT_ARM';
             this.armSelected = false;
+            
+            // ⭐ เล่นเสียง armconfirm.wav ครั้งเดียวเมื่อเปิดกล้อง (แทน welcome.wav)
+            if (!this.hasPlayedCameraWelcome && languageManager) {
+                this.hasPlayedCameraWelcome = true;
+                setTimeout(() => {
+                    languageManager.speakSelectArm(); // เล่น armconfirm.wav
+                }, 500);
+            }
             
             // แสดงข้อความสถานะ
             if (this.gestureStatusElement) {

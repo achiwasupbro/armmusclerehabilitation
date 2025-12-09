@@ -22,6 +22,7 @@ class ESP32Controller {
         this.lastVoiceCommand = null; // คำสั่งเสียงล่าสุด
         this.lastVoiceCommandTime = 0; // เวลาที่ได้รับคำสั่งเสียงล่าสุด
         this.isIOS = isIOS; // เก็บสถานะว่าเป็น iOS หรือไม่
+        this.hasPlayedWelcome = false; // ⭐ ตัวแปรเช็คว่าเล่น welcome แล้วหรือยัง
         this.init();
     }
 
@@ -193,10 +194,13 @@ class ESP32Controller {
         document.getElementById('deviceStatus').textContent = '🟢 พร้อมใช้งาน';
         document.getElementById('deviceStatus').className = 'status-badge online';
         
-        // พูดว่าระบบพร้อม
-        setTimeout(() => {
-            this.speakReady();
-        }, 500);
+        // ⭐ เล่นเสียง welcome.wav เพียงครั้งเดียว (ไม่ซ้ำ)
+        if (!this.hasPlayedWelcome) {
+            this.hasPlayedWelcome = true;
+            setTimeout(() => {
+                this.speakReady();
+            }, 500);
+        }
     }
     
     handleESP32Disconnected() {
@@ -871,17 +875,19 @@ class ESP32Controller {
                 
                 console.log(`🔘 [DEBUG] กดปุ่มโหมด ${mode}`);
                 
-                // ตรวจสอบว่าเลือกแขนแล้วหรือยัง
+                // ⭐ ตรวจสอบว่าเลือกแขนแล้วหรือยัง - ถ้ายังไม่เลือกห้ามทำงาน
                 if (!this.selectedArm) {
                     modeStatus.textContent = '⚠️ กรุณาเลือกแขนก่อน';
                     modeStatus.className = 'mode-status error';
+                    
+                    // ⭐ เล่นเสียง armconfirm.wav เตือนให้เลือกแขน
                     this.speakSelectArm();
                     
                     setTimeout(() => {
                         modeStatus.textContent = '';
                         modeStatus.className = '';
                     }, 3000);
-                    return;
+                    return; // ⭐ หยุดการทำงาน ไม่ให้เมนูทำงาน
                 }
                 
                 // แปลงโหมดตามแขนที่เลือก
@@ -903,7 +909,7 @@ class ESP32Controller {
                 modeButtons.forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 
-                // พูดแจ้งเตือน - ไม่พูดชื่อแขน (เพราะกดปุ่มเอง รู้อยู่แล้วว่าเลือกแขนไหน)
+                // ⭐ เล่นเสียงโหมด mode1.wav - mode5.wav (ไม่พูดชื่อแขน)
                 this.speakMode(displayMode, '');
                 
                 // ส่งโหมด (ส่ง actualMode ไป ESP32 แต่แสดงเป็น displayMode)
@@ -1147,7 +1153,7 @@ class ESP32Controller {
                 modeStatus.textContent = `✅ เลือก${armName}แล้ว`;
                 modeStatus.className = 'mode-status success';
                 
-                // พูดแจ้งเตือน - ใช้ LanguageManager
+                // ⭐ เล่นเสียง rightarm.wav หรือ leftarm.wav ตามแขนที่เลือก
                 this.speakArmSelected(arm);
                 
                 setTimeout(() => {

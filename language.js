@@ -193,38 +193,38 @@ class LanguageManager {
     
     // พูดเมื่อระบบพร้อม
     async speakReady() {
+        // ⭐ เฉพาะภาษาไทยเท่านั้น - อังกฤษไม่พูด
         if (this.currentLang === 'th') {
             await this.playWelcomeAndWait();
-        } else {
-            this.speak('', 'Ready. Mode start operation. Please select the arm side.');
         }
+        // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
     }
     
     // พูดเมื่อยังไม่ได้เลือกแขน
     speakSelectArm() {
+        // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
             this.playThaiAudio('armconfirm.wav');
-        } else {
-            this.speak('', 'Please select the arm side.');
         }
+        // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
     }
     
     // พูดเมื่อเลือกแขน
     speakArmSelected(arm) {
+        // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
             if (arm === 'left') {
                 this.playThaiAudio('leftarm.wav');
             } else {
                 this.playThaiAudio('rightarm.wav');
             }
-        } else {
-            const armText = arm === 'left' ? 'Left arm' : 'Right arm';
-            this.speak('', `${armText} selected`);
         }
+        // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
     }
     
     // พูดเมื่อเริ่มโหมด
     speakMode(mode, armName = '') {
+        // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
             // เล่นเสียงไทย - เล่นชื่อแขนก่อน (ถ้ามี) แล้วค่อยเล่นโหมด
             if (armName) {
@@ -238,10 +238,8 @@ class LanguageManager {
             } else {
                 this.playThaiAudio(`mode${mode}.wav`);
             }
-        } else {
-            const armText = armName ? `${armName} ` : '';
-            this.speak('', `${armText}Starting mode ${mode}`);
         }
+        // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
     }
 }
 
