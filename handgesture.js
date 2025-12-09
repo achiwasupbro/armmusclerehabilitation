@@ -365,8 +365,17 @@ class HandGestureDetector {
             let shouldStartCountdown = false;
             
             if (this.gestureState === 'SELECT_ARM') {
-                // กำลังเลือกแขน - รับเฉพาะ 1 หรือ 2 นิ้ว
+                // ⭐ กำลังเลือกแขน - รับเฉพาะ 1 หรือ 2 นิ้วเท่านั้น (ไม่รับ 3-5)
                 shouldStartCountdown = (stableFingerCount === 1 || stableFingerCount === 2);
+                
+                // ⭐ ถ้าชู 3-5 นิ้ว ให้แสดงข้อความเตือน
+                if (stableFingerCount >= 3 && stableFingerCount <= 5 && isStable) {
+                    if (this.gestureStatusElement) {
+                        this.gestureStatusElement.textContent = '⚠️ กรุณาชู 1 นิ้ว (แขนขวา) หรือ 2 นิ้ว (แขนซ้าย) เท่านั้น';
+                        this.gestureStatusElement.className = 'gesture-status warning';
+                        this.gestureStatusElement.style.display = 'block';
+                    }
+                }
             } else if (this.gestureState === 'SELECT_MODE') {
                 // กำลังเลือกโหมด - รับ 0 (รีเซ็ต) หรือ 1-5 (โหมด)
                 shouldStartCountdown = (stableFingerCount >= 0 && stableFingerCount <= 5);
