@@ -15,6 +15,12 @@ class HandGestureDetector {
         // ตรวจสอบว่า element มีอยู่จริงหรือไม่
         if (!this.videoElement || !this.canvasElement) {
             console.error('❌ ไม่พบ videoElement หรือ canvasElement');
+            console.log('🔍 Elements found:', {
+                videoElement: !!this.videoElement,
+                canvasElement: !!this.canvasElement,
+                startCameraBtn: !!this.startCameraBtn,
+                stopCameraBtn: !!this.stopCameraBtn
+            });
             return;
         }
         
@@ -109,10 +115,24 @@ class HandGestureDetector {
         
         // Setup camera buttons
         if (this.startCameraBtn) {
-            this.startCameraBtn.addEventListener('click', () => this.startCamera());
+            console.log('✅ พบปุ่มเปิดกล้อง - ตั้งค่า event listener');
+            this.startCameraBtn.addEventListener('click', (e) => {
+                console.log('🔥 ปุ่มเปิดกล้องถูกกด!');
+                e.preventDefault();
+                this.startCamera();
+            });
+        } else {
+            console.error('❌ ไม่พบปุ่มเปิดกล้อง (startCameraBtn)');
         }
         if (this.stopCameraBtn) {
-            this.stopCameraBtn.addEventListener('click', () => this.stopCamera());
+            console.log('✅ พบปุ่มปิดกล้อง - ตั้งค่า event listener');
+            this.stopCameraBtn.addEventListener('click', (e) => {
+                console.log('🔥 ปุ่มปิดกล้องถูกกด!');
+                e.preventDefault();
+                this.stopCamera();
+            });
+        } else {
+            console.error('❌ ไม่พบปุ่มปิดกล้อง (stopCameraBtn)');
         }
         
         // Set canvas size
@@ -130,15 +150,34 @@ class HandGestureDetector {
     }
     
     async startCamera() {
-        if (this.isRunning) return;
+        console.log('🔥 startCamera() ถูกเรียก!');
+        
+        if (this.isRunning) {
+            console.log('⚠️ กล้องทำงานอยู่แล้ว - ข้าม');
+            return;
+        }
         
         console.log('🎥 เริ่มต้นกล้อง...');
+        
+        // แสดงสถานะการโหลด
+        if (this.gestureStatusElement) {
+            this.gestureStatusElement.textContent = '🔄 กำลังเปิดกล้อง...';
+            this.gestureStatusElement.className = 'gesture-status info';
+            this.gestureStatusElement.style.display = 'block';
+        }
+        
+        // ปิดปุ่มชั่วคราว
+        if (this.startCameraBtn) {
+            this.startCameraBtn.disabled = true;
+            this.startCameraBtn.textContent = '🔄 กำลังเปิด...';
+        }
         
         // ตรวจสอบ User Agent เพื่อดู iOS Safari
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
         
         console.log(`📱 Device: iOS=${isIOS}, Safari=${isSafari}`);
+        console.log(`📱 User Agent: ${navigator.userAgent}`);
         
         try {
             // สำหรับ iOS Safari ใช้ getUserMedia โดยตรง
@@ -152,6 +191,7 @@ class HandGestureDetector {
             }
             
             this.isRunning = true;
+            console.log('✅ กล้องเปิดสำเร็จ!');
             
             console.log('✅ Camera started, waiting for video...');
             
@@ -228,22 +268,39 @@ class HandGestureDetector {
             console.log('✅ กล้องเริ่มทำงานแล้ว - พร้อมตรวจจับมือ');
         } catch (error) {
             console.error('❌ ไม่สามารถเปิดกล้องได้:', error);
+            
+            // แสดง error message
+            let errorMessage = '❌ ไม่สามารถเปิดกล้องได้';
+            if (error.message) {
+                errorMessage += ': ' + error.message;
+            }
+            
             if (this.gestureStatusElement) {
-                this.gestureStatusElement.textContent = '❌ ไม่สามารถเปิดกล้องได้ - กรุณาอนุญาตให้เข้าถึงกล้อง';
+                this.gestureStatusElement.textContent = errorMessage;
                 this.gestureStatusElement.className = 'gesture-status error';
                 this.gestureStatusElement.style.display = 'block';
             }
+            
             this.isRunning = false;
+            
+            // เปิดปุ่มกลับคืน
+            if (this.startCameraBtn) {
+                this.startCameraBtn.disabled = false;
+                this.startCameraBtn.textContent = '📷 เปิดกล้อง';
+            }
         }
     }
 
     // ฟังก์ชันสำหรับ iOS Safari
     async startCameraForIOS() {
         console.log('📱 เริ่มกล้องสำหรับ iOS Safari...');
+        console.log(`📱 Protocol: ${location.protocol}, Hostname: ${location.hostname}`);
         
         // ตรวจสอบ HTTPS (iOS Safari ต้องการ HTTPS)
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-            throw new Error('iOS Safari ต้องการ HTTPS เพื่อเข้าถึงกล้อง');
+            const errorMsg = 'iOS Safari ต้องการ HTTPS เพื่อเข้าถึงกล้อง';
+            console.error('❌', errorMsg);
+            throw new Error(errorMsg);
         }
         
         // ขอสิทธิ์เข้าถึงกล้อง
@@ -258,7 +315,16 @@ class HandGestureDetector {
         
         // ตรวจสอบว่า getUserMedia พร้อมใช้งาน
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('getUserMedia ไม่รองรับในเบราว์เซอร์นี้');
+            const errorMsg = 'getUserMedia ไม่รองรับในเบราว์เซอร์นี้';
+            console.error('❌', errorMsg);
+            throw new Error(errorMsg);
+        }
+
+        // ตรวจสอบว่า MediaPipe Hands โหลดแล้วหรือไม่
+        if (!this.hands) {
+            const errorMsg = 'MediaPipe Hands ยังไม่ได้โหลด';
+            console.error('❌', errorMsg);
+            throw new Error(errorMsg);
         }
 
         try {

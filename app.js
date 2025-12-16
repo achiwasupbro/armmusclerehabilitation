@@ -65,8 +65,8 @@ class ESP32Controller {
         this.setupModeButtons();
         this.setupVoiceControl();
         
-        // สร้าง HandGestureDetector (ถ้าไม่ใช่ iOS)
-        if (!handGestureDetector && !this.isIOS) {
+        // สร้าง HandGestureDetector (รองรับทุกแพลตฟอร์มรวม iOS)
+        if (!handGestureDetector) {
             try {
                 handGestureDetector = new HandGestureDetector(this);
                 console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
@@ -248,17 +248,14 @@ class ESP32Controller {
         // Setup voice control
         this.setupVoiceControl();
         
-        // สร้าง HandGestureDetector สำหรับกล้อง (ไม่รองรับ iOS)
-        if (!handGestureDetector && !this.isIOS) {
+        // สร้าง HandGestureDetector สำหรับกล้อง (รองรับทุกแพลตฟอร์มรวม iOS)
+        if (!handGestureDetector) {
             try {
                 handGestureDetector = new HandGestureDetector(this);
                 console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
             } catch (error) {
                 console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
             }
-        } else if (this.isIOS) {
-            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
-            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
         }
         
         // พูดว่าระบบพร้อม
@@ -737,17 +734,14 @@ class ESP32Controller {
             this.speakReady();
         }, 500);
         
-        // สร้าง HandGestureDetector เมื่อ deviceControl แสดงแล้ว (ไม่รองรับ iOS)
-        if (!handGestureDetector && !this.isIOS) {
+        // สร้าง HandGestureDetector เมื่อ deviceControl แสดงแล้ว (รองรับทุกแพลตฟอร์มรวม iOS)
+        if (!handGestureDetector) {
             try {
                 handGestureDetector = new HandGestureDetector(this);
                 console.log('✅ HandGestureDetector ถูกสร้างแล้ว');
             } catch (error) {
                 console.error('❌ ไม่สามารถสร้าง HandGestureDetector ได้:', error);
             }
-        } else if (this.isIOS) {
-            console.log('ℹ️ iOS ตรวจพบ - ปิดฟีเจอร์กล้อง AI (ไม่รองรับ)');
-            // ไม่ซ่อนกล้อง - ให้ผู้ใช้ลองใช้ได้
         }
     }
 
