@@ -5,6 +5,9 @@ class LanguageManager {
         this.currentLang = 'th'; // ภาษาเริ่มต้น: ไทย
         this.audioCache = {}; // เก็บ Audio objects
         this.isPlayingWelcome = false;
+        this.currentAudio = null; // เก็บเสียงที่กำลังเล่นอยู่
+        this.audioQueue = []; // คิวเสียง
+        this.isProcessingQueue = false;
         
         // โหลดเสียงภาษาไทยทั้งหมด
         this.loadThaiAudios();
@@ -32,10 +35,8 @@ class LanguageManager {
         audioFiles.forEach(file => {
             const audio = new Audio(file);
             audio.preload = 'auto';
-            // เร่งสปีดเสียงทุกไฟล์ยกเว้นโหมด
-            if (!file.startsWith('mode')) {
-                audio.playbackRate = 1.5; // เร่งสปีด 50% (เร็วขึ้นมาก)
-            }
+            // เร่งสปีดเสียงทุกไฟล์
+            audio.playbackRate = 2.5; // เร่งสปีด 150% (เร็วมากขึ้น)
             this.audioCache[file] = audio;
         });
         
@@ -74,7 +75,7 @@ class LanguageManager {
         if (lang === 'th') {
             // ภาษาไทย - แสดง TH (ภาษาปัจจุบัน)
             if (langToggle) langToggle.textContent = '🌐 TH';
-            setText('mainTitle', 'ระบบควบคุมกายภาพบำบัดแขน');
+            setText('mainTitle', 'อุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขน');
             setText('subtitle', 'ควบคุมผ่าน WebSocket - ไม่ต้องใส่ IP');
             setText('scanBtnText', 'เชื่อมต่อ Server');
             setText('skipBtnText', 'ข้ามไปทดสอบ (ไม่มีบอร์ด)');
@@ -126,32 +127,86 @@ class LanguageManager {
         }
     }
     
-    // เล่นเสียงภาษาไทย
-    playThaiAudio(filename, callback = null) {
-        if (this.currentLang !== 'th') return; // เล่นเฉพาะภาษาไทย
-        
-        const audio = this.audioCache[filename];
-        if (audio) {
-            audio.currentTime = 0;
-            
-            // ถ้ามี callback ให้เรียกเมื่อเสียงเล่นจบ
-            if (callback) {
-                audio.onended = () => {
-                    callback();
-                    audio.onended = null; // ลบ event listener
-                };
-            }
-            
-            audio.play().catch(err => {
-                console.warn(`⚠️ ไม่สามารถเล่นเสียง ${filename}:`, err);
-                // ถ้าเล่นไม่ได้แต่มี callback ให้เรียกทันที
-                if (callback) callback();
-            });
-        } else {
-            console.warn(`⚠️ ไม่พบไฟล์เสียง: ${filename}`);
-            // ถ้าไม่พบไฟล์แต่มี callback ให้เรียกทันที
-            if (callback) callback();
+    // หยุดเสียงปัจจุบัน
+    stopCurrentAudio() {
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio.currentTime = 0;
+            this.currentAudio.onended = null;
+            this.currentAudio = null;
         }
+    }
+
+    // เพิ่มเสียงเข้าคิว
+    addToQueue(filename, callback = null) {
+        this.audioQueue.push({ filename, callback });
+        if (!this.isProcessingQueue) {
+            this.processQueue();
+        }
+    }
+
+    // ประมวลผลคิวเสียง
+    async processQueue() {
+        if (this.isProcessingQueue || this.audioQueue.length === 0) return;
+        
+        this.isProcessingQueue = true;
+        
+        while (this.audioQueue.length > 0) {
+            const { filename, callback } = this.audioQueue.shift();
+            await this.playThaiAudioSync(filename, callback);
+        }
+        
+        this.isProcessingQueue = false;
+    }
+
+    // เล่นเสียงแบบ sync (รอจนจบ)
+    playThaiAudioSync(filename, callback = null) {
+        if (this.currentLang !== 'th') return Promise.resolve();
+        
+        return new Promise((resolve) => {
+            const audio = this.audioCache[filename];
+            if (audio) {
+                // หยุดเสียงเก่าก่อน
+                this.stopCurrentAudio();
+                
+                this.currentAudio = audio;
+                audio.currentTime = 0;
+                
+                audio.onended = () => {
+                    this.currentAudio = null;
+                    audio.onended = null;
+                    if (callback) callback();
+                    resolve();
+                };
+                
+                audio.play().catch(err => {
+                    console.warn(`⚠️ ไม่สามารถเล่นเสียง ${filename}:`, err);
+                    this.currentAudio = null;
+                    if (callback) callback();
+                    resolve();
+                });
+            } else {
+                console.warn(`⚠️ ไม่พบไฟล์เสียง: ${filename}`);
+                if (callback) callback();
+                resolve();
+            }
+        });
+    }
+
+    // เล่นเสียงภาษาไทย (แบบเดิม - ใช้คิว)
+    playThaiAudio(filename, callback = null) {
+        if (this.currentLang !== 'th') return;
+        this.addToQueue(filename, callback);
+    }
+
+    // เล่นเสียงทันที (หยุดเสียงเก่า)
+    playThaiAudioImmediate(filename, callback = null) {
+        if (this.currentLang !== 'th') return;
+        
+        // ล้างคิวและเล่นทันที
+        this.audioQueue = [];
+        this.stopCurrentAudio();
+        this.playThaiAudioSync(filename, callback);
     }
     
     // เล่นเสียง welcome และรอจนจบ
@@ -204,7 +259,7 @@ class LanguageManager {
     speakSelectArm() {
         // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
-            this.playThaiAudio('armconfirm.wav');
+            this.playThaiAudioImmediate('armconfirm.wav'); // เล่นทันทีเพื่อแจ้งเตือน
         }
         // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
     }
@@ -214,9 +269,9 @@ class LanguageManager {
         // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
             if (arm === 'left') {
-                this.playThaiAudio('leftarm.wav');
+                this.playThaiAudioImmediate('leftarm.wav'); // เล่นทันทีเพื่อยืนยัน
             } else {
-                this.playThaiAudio('rightarm.wav');
+                this.playThaiAudioImmediate('rightarm.wav'); // เล่นทันทีเพื่อยืนยัน
             }
         }
         // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย
@@ -226,17 +281,13 @@ class LanguageManager {
     speakMode(mode, armName = '') {
         // ⭐ เฉพาะภาษาไทยเท่านั้น
         if (this.currentLang === 'th') {
-            // เล่นเสียงไทย - เล่นชื่อแขนก่อน (ถ้ามี) แล้วค่อยเล่นโหมด
+            // เล่นเสียงไทย - ใช้ระบบคิวเพื่อป้องกันเสียงซ้อนกัน
             if (armName) {
                 const armAudio = armName === 'แขนขวา' ? 'rightarm.wav' : 'leftarm.wav';
-                this.playThaiAudio(armAudio, () => {
-                    // เล่นเสียงโหมดหลังจากเสียงแขนเล่นเสร็จ
-                    setTimeout(() => {
-                        this.playThaiAudio(`mode${mode}.wav`);
-                    }, 100);
-                });
+                this.addToQueue(armAudio);
+                this.addToQueue(`mode${mode}.wav`);
             } else {
-                this.playThaiAudio(`mode${mode}.wav`);
+                this.addToQueue(`mode${mode}.wav`);
             }
         }
         // ⭐ ภาษาอังกฤษไม่พูดอะไรเลย

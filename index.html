@@ -16,7 +16,7 @@
 <body>
     <div class="container">
         <header>
-            <h1 id="mainTitle">ระบบควบคุมกายภาพบำบัดแขน</h1>
+            <h1 id="mainTitle">อุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขน</h1>
             <p class="subtitle" id="subtitle">ควบคุมผ่าน WebSocket - ไม่ต้องใส่ IP</p>
             <button id="langToggle" class="btn btn-lang">🌐 TH</button>
         </header>
@@ -49,13 +49,13 @@
                     <button class="help-btn" data-help="armSelection">?</button>
                 </div>
                 <div class="arm-buttons">
-                    <button class="btn btn-arm" data-arm="right">
-                        <span class="arm-icon">👉</span>
-                        <span class="arm-label" id="rightArmLabel">แขนขวา</span>
-                    </button>
-                    <button class="btn btn-arm" data-arm="left">
-                        <span class="arm-icon">👈</span>
+                    <button class="btn btn-arm btn-arm-left" data-arm="left">
+                        <span class="arm-icon">🫲</span>
                         <span class="arm-label" id="leftArmLabel">แขนซ้าย</span>
+                    </button>
+                    <button class="btn btn-arm btn-arm-right" data-arm="right">
+                        <span class="arm-icon">🫱</span>
+                        <span class="arm-label" id="rightArmLabel">แขนขวา</span>
                     </button>
                 </div>
             </div>
@@ -140,6 +140,40 @@
             </div>
         </div>
     </div>
+
+    <!-- Credits Section -->
+    <footer class="credits-section">
+        <div class="credits-container">
+            <div class="credits-header">
+                <br>
+                <h3 style="color: black;">👨‍💻 ผู้พัฒนาระบบ</h3>
+            </div>
+            <div class="credits-content">
+                <div class="developer-card">
+                    <div class="developer-info">
+                        <h4 style="color: black;">นาย อชิตวา เมฆสงค์</h4>
+                        <div class="contact-info">
+                            <span class="contact-icon">📞</span>
+                            <a href="tel:0982049097" class="phone-link" style="color: black;">098-204-9097</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="developer-card">
+                    <div class="developer-info">
+                        <h4 style="color: black;">นายวีรภัทร เกิดแสวง</h4>
+                        <div class="contact-info">
+                            <span class="contact-icon">📞</span>
+                            <a href="tel:0630071585" class="phone-link" style="color: black;">063-007-1585</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="credits-footer">
+                <p>🏥 อุปกรณ์ฟื้นฟูสมรรถภาพกล้ามเนื้อแขน </p>
+                <p class="copyright">© 2025 Arm Rehabilitation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
     <!-- Help Modal -->
     <div id="helpModal" class="help-modal">
