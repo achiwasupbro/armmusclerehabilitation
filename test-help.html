@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Help System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ทดสอบระบบ Help</h1>
+        
+        <div class="section-header">
+            <h3>ทดสอบปุ่ม Help</h3>
+            <button class="help-btn" data-help="cameraControl">?</button>
+        </div>
+        
+        <p>กดปุ่ม ? เพื่อทดสอบ popup</p>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="helpModalTitle">รายละเอียดและสอนการใช้งาน</h2>
+                <span class="help-modal-close">&times;</span>
+            </div>
+            <div class="help-modal-body">
+                <div id="helpContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="help.js"></script>
+</body>
+</html>

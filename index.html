@@ -44,7 +44,10 @@
             </div>
             
             <div class="arm-selection">
-                <h3 id="armSelectionTitle">เลือกแขน</h3>
+                <div class="section-header">
+                    <h3 id="armSelectionTitle">เลือกแขน</h3>
+                    <button class="help-btn" data-help="armSelection">?</button>
+                </div>
                 <div class="arm-buttons">
                     <button class="btn btn-arm" data-arm="right">
                         <span class="arm-icon">👉</span>
@@ -58,27 +61,39 @@
             </div>
 
             <div class="mode-control">
-                <h3 id="modeControlTitle">เลือกโหมด</h3>
-                <div class="mode-buttons">
-                    <button class="btn btn-mode" data-mode="1">
+                <div class="section-header">
+                    <h3 id="modeControlTitle">เลือกโหมด</h3>
+                    <button class="help-btn" data-help="modeSelection">?</button>
+                </div>
+                <div class="mode-buttons-grid">
+                    <!-- ปุ่มโหมด 1 -->
+                    <button class="btn btn-mode mode-1" data-mode="1">
                         <span class="mode-number">1</span>
                         <span class="mode-label mode-label-1">โหมด 1</span>
                     </button>
-                    <button class="btn btn-mode" data-mode="2">
-                        <span class="mode-number">2</span>
-                        <span class="mode-label mode-label-2">โหมด 2</span>
-                    </button>
-                    <button class="btn btn-mode" data-mode="3">
+                    
+                    <!-- ปุ่มโหมด 3 -->
+                    <button class="btn btn-mode mode-3" data-mode="3">
                         <span class="mode-number">3</span>
                         <span class="mode-label mode-label-3">โหมด 3</span>
                     </button>
-                    <button class="btn btn-mode" data-mode="4">
+                    
+                    <!-- ปุ่มโหมด 5 แนวตั้งยาว -->
+                    <button class="btn btn-mode mode-5 vertical-tall" data-mode="5">
+                        <span class="mode-stop-icon">✕</span>
+                        <span class="mode-label mode-label-5">หยุดการทำงาน</span>
+                    </button>
+                    
+                    <!-- ปุ่มโหมด 2 -->
+                    <button class="btn btn-mode mode-2" data-mode="2">
+                        <span class="mode-number">2</span>
+                        <span class="mode-label mode-label-2">โหมด 2</span>
+                    </button>
+                    
+                    <!-- ปุ่มโหมด 4 -->
+                    <button class="btn btn-mode mode-4" data-mode="4">
                         <span class="mode-number">4</span>
                         <span class="mode-label mode-label-4">โหมด 4</span>
-                    </button>
-                    <button class="btn btn-mode" data-mode="5">
-                        <span class="mode-number">5</span>
-                        <span class="mode-label mode-label-5">หยุดการทำงาน</span>
                     </button>
                 </div>
                 <div id="modeStatus" class="mode-status"></div>
@@ -86,7 +101,10 @@
             </div>
 
             <div class="voice-control">
-                <h3 id="voiceControlTitle">🎤 สั่งงานด้วยเสียง</h3>
+                <div class="section-header">
+                    <h3 id="voiceControlTitle">🎤 สั่งงานด้วยเสียง</h3>
+                    <button class="help-btn" data-help="voiceControl">?</button>
+                </div>
                 <button id="startVoiceBtn" class="btn btn-voice">
                     <span class="btn-icon">🎤</span>
                     <span id="startVoiceBtnText">เริ่มฟังคำสั่ง</span>
@@ -99,7 +117,10 @@
             </div>
 
             <div class="camera-control">
-                <h3 id="cameraControlTitle">🤖 AI ตรวจจับนิ้วมือ</h3>
+                <div class="section-header">
+                    <h3 id="cameraControlTitle">🤖 AI ตรวจจับนิ้วมือ</h3>
+                    <button class="help-btn" data-help="cameraControl">?</button>
+                </div>
                 <div id="mediapipeStatus" style="padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 0.9rem;"></div>
                 <button id="startCameraBtn" class="btn btn-camera">
                     <span class="btn-icon">📷</span>
@@ -120,6 +141,20 @@
         </div>
     </div>
 
+    <!-- Help Modal -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="helpModalTitle">รายละเอียดและสอนการใช้งาน</h2>
+                <span class="help-modal-close">&times;</span>
+            </div>
+            <div class="help-modal-body">
+                <div id="helpContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="help-standalone.js"></script>
     <script src="language.js"></script>
     <script src="handgesture.js"></script>
     <script src="app.js"></script>

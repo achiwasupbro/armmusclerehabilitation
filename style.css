@@ -5,21 +5,21 @@
 }
 
 :root {
-    --primary-pink: #ff6b9d;
-    --light-pink: #ffb3d1;
-    --dark-pink: #ff4a7a;
+    --primary-blue: #1565c0;
+    --light-blue: #42a5f5;
+    --dark-blue: #0d47a1;
     --white: #ffffff;
     --light-gray: #f8f8f8;
     --gray: #e0e0e0;
     --dark-gray: #666666;
     --text-dark: #333333;
-    --shadow: rgba(255, 107, 157, 0.2);
-    --shadow-hover: rgba(255, 107, 157, 0.4);
+    --shadow: rgba(21, 101, 192, 0.2);
+    --shadow-hover: rgba(21, 101, 192, 0.4);
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 50%, #ffffff 100%);
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #ffffff 100%);
     min-height: 100vh;
     padding: 15px;
     color: var(--text-dark);
@@ -52,7 +52,7 @@ header {
 }
 
 header h1 {
-    color: var(--primary-pink);
+    color: var(--dark-blue);
     font-size: 1.8rem;
     margin-bottom: 8px;
     font-weight: 700;
@@ -66,7 +66,7 @@ header h1 {
 }
 
 .btn-lang {
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91);
     color: var(--white);
     border: none;
     border-radius: 8px;
@@ -140,7 +140,7 @@ header h1 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91);
     color: var(--white);
 }
 
@@ -204,7 +204,7 @@ header h1 {
 
 .device-card {
     background: var(--white);
-    border: 2px solid var(--light-pink);
+    border: 2px solid var(--light-blue);
     border-radius: 20px;
     padding: 20px;
     margin-bottom: 15px;
@@ -214,13 +214,13 @@ header h1 {
 }
 
 .device-card:hover {
-    border-color: var(--primary-pink);
+    border-color: var(--primary-blue);
     transform: translateY(-3px);
     box-shadow: 0 6px 25px var(--shadow-hover);
 }
 
 .device-card h3 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 10px;
     font-size: 1.2rem;
 }
@@ -232,7 +232,7 @@ header h1 {
 }
 
 .device-card a {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     text-decoration: none;
     font-weight: 600;
 }
@@ -266,7 +266,7 @@ header h1 {
 }
 
 .device-control h2 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 20px;
     font-size: 1.5rem;
     text-align: center;
@@ -313,7 +313,7 @@ header h1 {
 }
 
 .arm-selection h3 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 20px;
     font-size: 1.3rem;
     text-align: center;
@@ -327,9 +327,9 @@ header h1 {
 }
 
 .btn-arm {
-    background: linear-gradient(135deg, var(--light-pink), var(--white));
-    border: 2px solid var(--light-pink);
-    color: var(--primary-pink);
+    background: linear-gradient(135deg, var(--light-blue), var(--white));
+    border: 2px solid var(--light-blue);
+    color: var(--primary-blue);
     border-radius: 20px;
     padding: 25px 15px;
     font-size: 1rem;
@@ -346,13 +346,13 @@ header h1 {
 
 .btn-arm:hover {
     transform: translateY(-5px) scale(1.05);
-    border-color: var(--primary-pink);
+    border-color: var(--primary-blue);
     box-shadow: 0 8px 25px var(--shadow-hover);
 }
 
 .btn-arm.active {
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
-    border-color: var(--dark-pink);
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    border-color: var(--dark-blue);
     color: var(--white);
     transform: scale(1.05);
     box-shadow: 0 8px 25px var(--shadow-hover);
@@ -375,7 +375,7 @@ header h1 {
 }
 
 .voice-control h3 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 20px;
     font-size: 1.3rem;
     text-align: center;
@@ -433,7 +433,7 @@ header h1 {
 }
 
 .mode-control h3 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 20px;
     font-size: 1.3rem;
     text-align: center;
@@ -456,9 +456,9 @@ header h1 {
 }
 
 .btn-mode {
-    background: linear-gradient(135deg, var(--light-pink), var(--white));
-    border: 2px solid var(--light-pink);
-    color: var(--primary-pink);
+    background: linear-gradient(135deg, var(--light-blue), var(--white));
+    border: 2px solid var(--light-blue);
+    color: var(--primary-blue);
     border-radius: 20px;
     padding: 25px 15px;
     font-size: 1rem;
@@ -493,13 +493,13 @@ header h1 {
 
 .btn-mode:hover {
     transform: translateY(-5px) scale(1.05);
-    border-color: var(--primary-pink);
+    border-color: var(--primary-blue);
     box-shadow: 0 8px 25px var(--shadow-hover);
 }
 
 .btn-mode.active {
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
-    border-color: var(--dark-pink);
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    border-color: var(--dark-blue);
     color: var(--white);
     transform: scale(1.05);
     box-shadow: 0 8px 25px var(--shadow-hover);
@@ -513,7 +513,7 @@ header h1 {
     font-size: 2.5rem;
     font-weight: 700;
     line-height: 1;
-    color: var(--primary-pink);
+    color: var(--primary-blue);
 }
 
 .btn-mode.active .mode-number {
@@ -582,7 +582,7 @@ header h1 {
 }
 
 .camera-control h3 {
-    color: var(--primary-pink);
+    color: var(--primary-blue);
     margin-bottom: 20px;
     font-size: 1.3rem;
     text-align: center;
@@ -593,7 +593,7 @@ header h1 {
 }
 
 .btn-camera {
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91);
     color: var(--white);
     margin-bottom: 15px;
     width: 100%;
@@ -638,7 +638,7 @@ header h1 {
     position: absolute;
     top: 20px;
     left: 20px;
-    background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
     color: var(--white);
     padding: 12px 20px;
     border-radius: 15px;
@@ -811,8 +811,8 @@ header h1 {
 
 .input-ip:focus {
     outline: none;
-    border-color: var(--primary-pink);
-    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
 .input-ip::placeholder {
@@ -1059,3 +1059,517 @@ header h1 {
     z-index: 100;
 }
 
+
+/* 🎨 Layout ปุ่มโหมดใหม่ตามภาพ */
+.mode-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+    height: 280px;
+}
+
+/* ปุ่มโหมด 1 - สีแดง - ตำแหน่ง (1,1) */
+.mode-1 {
+    grid-column: 1;
+    grid-row: 1;
+    background: linear-gradient(135deg, #ffcdd2, #f8bbd9) !important;
+    border: 3px solid #f44336 !important;
+    color: #d32f2f !important;
+}
+
+.mode-1:hover {
+    border-color: #d32f2f !important;
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4) !important;
+}
+
+/* ปุ่มโหมด 3 - สีเขียว - ตำแหน่ง (2,1) */
+.mode-3 {
+    grid-column: 2;
+    grid-row: 1;
+    background: linear-gradient(135deg, #c8e6c9, #dcedc8) !important;
+    border: 3px solid #4caf50 !important;
+    color: #388e3c !important;
+}
+
+.mode-3:hover {
+    border-color: #388e3c !important;
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4) !important;
+}
+
+/* ปุ่มโหมด 5 - สีแดงเข้ม - แนวตั้งยาว - ตำแหน่ง (3,1-2) */
+.mode-5.vertical-tall {
+    grid-column: 3;
+    grid-row: 1 / 3; /* ขยายจากแถว 1 ถึง 3 */
+    background: linear-gradient(135deg, #ffcdd2, #ef5350) !important;
+    border: 5px solid #d32f2f !important;
+    color: #b71c1c !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(211, 47, 47, 0.4) !important;
+}
+
+.mode-5.vertical-tall .mode-stop-icon {
+    font-size: 4rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 15px;
+    color: #b71c1c !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.mode-5.vertical-tall .mode-label {
+    font-size: 1rem !important;
+    font-weight: bold !important;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.mode-5.vertical-tall:hover {
+    border-color: #b71c1c !important;
+    box-shadow: 0 15px 40px rgba(211, 47, 47, 0.6) !important;
+    transform: translateY(-8px) scale(1.02) !important;
+    background: linear-gradient(135deg, #ef5350, #f44336) !important;
+}
+
+.mode-5.vertical-tall:active {
+    transform: translateY(-4px) scale(1.01) !important;
+    box-shadow: 0 10px 25px rgba(211, 47, 47, 0.5) !important;
+}
+
+/* ปุ่มโหมด 2 - สีเหลือง - ตำแหน่ง (1,2) */
+.mode-2 {
+    grid-column: 1;
+    grid-row: 2;
+    background: linear-gradient(135deg, #fff9c4, #fff59d) !important;
+    border: 3px solid #ffeb3b !important;
+    color: #f57f17 !important;
+}
+
+.mode-2:hover {
+    border-color: #f57f17 !important;
+    box-shadow: 0 8px 25px rgba(255, 235, 59, 0.4) !important;
+}
+
+/* ปุ่มโหมด 4 - สีฟ้า - ตำแหน่ง (2,2) */
+.mode-4 {
+    grid-column: 2;
+    grid-row: 2;
+    background: linear-gradient(135deg, #bbdefb, #e1f5fe) !important;
+    border: 3px solid #2196f3 !important;
+    color: #1976d2 !important;
+}
+
+.mode-4:hover {
+    border-color: #1976d2 !important;
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4) !important;
+}
+
+/* ปรับปุ่มทั่วไป */
+.btn-mode {
+    background: linear-gradient(135deg, var(--light-blue), var(--white));
+    border: 2px solid var(--light-blue);
+    color: var(--primary-blue);
+    border-radius: 20px;
+    padding: 20px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    box-shadow: 0 4px 15px var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-mode .mode-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.btn-mode .mode-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.btn-mode:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 25px var(--shadow-hover);
+}
+
+.btn-mode.active {
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px var(--shadow-hover);
+}
+
+/* Responsive สำหรับหน้าจอเล็ก */
+@media (max-width: 480px) {
+    .mode-buttons-grid {
+        height: 240px;
+        gap: 10px;
+    }
+    
+    .btn-mode .mode-number {
+        font-size: 2rem;
+    }
+    
+    .btn-mode .mode-label {
+        font-size: 0.8rem;
+    }
+    
+    .mode-5.vertical-tall .mode-number {
+        font-size: 1.8rem !important;
+    }
+}
+
+
+/* Section Header with Help Button */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: var(--dark-blue);
+    font-size: 1.3rem;
+    text-align: left;
+}
+
+/* Help Button Styles */
+.help-btn {
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91);
+    color: var(--white);
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px var(--shadow);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.help-btn:hover {
+    background: linear-gradient(135deg, #0a3d91, var(--dark-blue));
+    transform: scale(1.15);
+    box-shadow: 0 6px 20px var(--shadow-hover);
+    border-color: var(--light-blue);
+}
+
+.help-btn:active {
+    transform: scale(1.05);
+}
+
+.help-btn::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--light-blue), var(--primary-blue));
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.help-btn:hover::before {
+    opacity: 0.3;
+}
+
+/* Help Modal Styles */
+.help-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s ease;
+}
+
+.help-modal-content {
+    background-color: var(--white);
+    margin: 3% auto;
+    padding: 0;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91);
+    color: var(--white);
+    border-radius: 20px 20px 0 0;
+}
+
+.help-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.help-modal-close {
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--white);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.help-modal-close:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.help-modal-body {
+    padding: 30px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.help-content {
+    line-height: 1.6;
+}
+
+.help-content h3 {
+    color: var(--dark-blue);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--light-blue);
+    padding-bottom: 8px;
+}
+
+.help-content h4 {
+    color: var(--primary-blue);
+    margin: 20px 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.help-content p {
+    margin-bottom: 15px;
+    color: var(--text-dark);
+    text-align: left;
+}
+
+.help-content ul {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.help-content li {
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.help-content .highlight {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.help-content .warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+}
+
+.help-content .success {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    border-left: 4px solid #4caf50;
+    color: #2e7d32;
+}
+
+/* Responsive Design for Help Modal */
+@media (max-width: 768px) {
+    .help-modal-content {
+        width: 95%;
+        margin: 10% auto;
+        max-height: 85vh;
+    }
+    
+    .help-modal-header {
+        padding: 20px 25px;
+    }
+    
+    .help-modal-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .help-modal-body {
+        padding: 25px 20px;
+        max-height: 70vh;
+    }
+    
+    .help-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .help-modal-content {
+        margin: 5% auto;
+        max-height: 90vh;
+    }
+    
+    .help-modal-header {
+        padding: 15px 20px;
+    }
+    
+    .help-modal-body {
+        padding: 20px 15px;
+        max-height: 75vh;
+    }
+    
+    .section-header {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-header h3 {
+        font-size: 1.1rem;
+    }
+}/* Mode 
+Button Colors - Dark Blue Theme */
+.btn-mode {
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91) !important;
+    border: 3px solid var(--dark-blue) !important;
+    color: var(--white) !important;
+}
+
+.btn-mode:hover {
+    border-color: #0a3d91 !important;
+    box-shadow: 0 8px 25px rgba(21, 101, 192, 0.4) !important;
+}
+
+.btn-mode .mode-number {
+    color: var(--white) !important;
+}
+
+.btn-mode.active {
+    background: linear-gradient(135deg, #0a3d91, var(--dark-blue)) !important;
+    border-color: #0a3d91 !important;
+    color: var(--white) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 10px 30px rgba(21, 101, 192, 0.6) !important;
+}
+
+/* Keep Mode 5 (Stop) as Red */
+.mode-5.vertical-tall {
+    background: linear-gradient(135deg, #ffcdd2, #ef5350) !important;
+    border: 5px solid #d32f2f !important;
+    color: #b71c1c !important;
+}
+
+.mode-5.vertical-tall:hover {
+    border-color: #b71c1c !important;
+    box-shadow: 0 15px 40px rgba(211, 47, 47, 0.6) !important;
+    background: linear-gradient(135deg, #ef5350, #f44336) !important;
+}
+
+.mode-5.vertical-tall .mode-stop-icon {
+    color: #b71c1c !important;
+}
+
+/* Arm Button Colors - Dark Blue Theme */
+.btn-arm {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+    border: 3px solid var(--light-blue) !important;
+    color: var(--dark-blue) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-arm:hover {
+    border-color: var(--dark-blue) !important;
+    box-shadow: 0 8px 25px var(--shadow-hover) !important;
+    transform: translateY(-3px) scale(1.02) !important;
+}
+
+.btn-arm.active {
+    background: linear-gradient(135deg, var(--dark-blue), #0a3d91) !important;
+    border: 4px solid #0a3d91 !important;
+    color: var(--white) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 12px 35px rgba(21, 101, 192, 0.6) !important;
+    animation: selectedPulse 2s ease-in-out infinite !important;
+}
+
+@keyframes selectedPulse {
+    0%, 100% {
+        box-shadow: 0 12px 35px rgba(21, 101, 192, 0.6);
+    }
+    50% {
+        box-shadow: 0 15px 45px rgba(21, 101, 192, 0.8);
+    }
+}/* Mo
+dal Animation States */
+.help-modal[style*="opacity: 1"] .help-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.help-modal[style*="opacity: 0"] .help-modal-content {
+    transform: translateY(-20px) scale(0.95);
+}
