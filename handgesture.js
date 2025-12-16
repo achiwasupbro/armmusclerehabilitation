@@ -132,33 +132,25 @@ class HandGestureDetector {
     async startCamera() {
         if (this.isRunning) return;
         
-        // ตรวจสอบว่า Camera API พร้อมหรือไม่
-        if (typeof Camera === 'undefined') {
-            console.error('❌ MediaPipe Camera API ไม่ได้โหลด');
-            if (this.gestureStatusElement) {
-                this.gestureStatusElement.textContent = '❌ Camera API ไม่พร้อม - รีเฟรชหน้าเว็บ';
-                this.gestureStatusElement.className = 'gesture-status error';
-                this.gestureStatusElement.style.display = 'block';
-            }
-            return;
-        }
+        console.log('🎥 เริ่มต้นกล้อง...');
+        
+        // ตรวจสอบ User Agent เพื่อดู iOS Safari
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+        
+        console.log(`📱 Device: iOS=${isIOS}, Safari=${isSafari}`);
         
         try {
-            // ตั้งค่า MediaPipe Camera
-            // Camera API จะจัดการ stream เองและพยายามใช้ 60 FPS
-            this.camera = new Camera(this.videoElement, {
-                onFrame: async () => {
-                    if (this.hands && this.isRunning) {
-                        await this.hands.send({ image: this.videoElement });
-                    }
-                },
-                width: 640,
-                height: 480,
-                facingMode: 'user' // ใช้กล้องหน้า
-            });
+            // สำหรับ iOS Safari ใช้ getUserMedia โดยตรง
+            if (isIOS || isSafari) {
+                console.log('📱 ใช้ getUserMedia สำหรับ iOS/Safari');
+                await this.startCameraForIOS();
+            } else {
+                // สำหรับ browser อื่นใช้ MediaPipe Camera API
+                console.log('💻 ใช้ MediaPipe Camera API');
+                await this.startCameraWithMediaPipe();
+            }
             
-            // เริ่มต้นกล้อง
-            await this.camera.start();
             this.isRunning = true;
             
             console.log('✅ Camera started, waiting for video...');
@@ -244,16 +236,153 @@ class HandGestureDetector {
             this.isRunning = false;
         }
     }
+
+    // ฟังก์ชันสำหรับ iOS Safari
+    async startCameraForIOS() {
+        console.log('📱 เริ่มกล้องสำหรับ iOS Safari...');
+        
+        // ตรวจสอบ HTTPS (iOS Safari ต้องการ HTTPS)
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            throw new Error('iOS Safari ต้องการ HTTPS เพื่อเข้าถึงกล้อง');
+        }
+        
+        // ขอสิทธิ์เข้าถึงกล้อง
+        const constraints = {
+            video: {
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            },
+            audio: false
+        };
+        
+        // ตรวจสอบว่า getUserMedia พร้อมใช้งาน
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('getUserMedia ไม่รองรับในเบราว์เซอร์นี้');
+        }
+
+        try {
+            console.log('📱 ขอสิทธิ์เข้าถึงกล้อง...');
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            console.log('📱 ได้รับสิทธิ์เข้าถึงกล้องแล้ว');
+            
+            this.videoElement.srcObject = stream;
+            
+            // รอให้ video โหลด
+            await new Promise((resolve, reject) => {
+                this.videoElement.onloadedmetadata = () => {
+                    console.log('📱 Video metadata โหลดแล้ว');
+                    resolve();
+                };
+                this.videoElement.onerror = reject;
+                
+                // Timeout หลัง 10 วินาที
+                setTimeout(() => reject(new Error('Video load timeout')), 10000);
+            });
+            
+            // เล่น video
+            await this.videoElement.play();
+            console.log('📱 Video เริ่มเล่นแล้ว');
+            
+            // เริ่ม frame processing
+            this.startFrameProcessing();
+            
+        } catch (error) {
+            console.error('❌ iOS Camera Error:', error);
+            
+            // จัดการ error message ที่เฉพาะเจาะจง
+            let errorMessage = '❌ ไม่สามารถเปิดกล้องได้';
+            
+            if (error.name === 'NotAllowedError') {
+                errorMessage = '❌ กรุณาอนุญาตให้เข้าถึงกล้องในการตั้งค่าเบราว์เซอร์';
+            } else if (error.name === 'NotFoundError') {
+                errorMessage = '❌ ไม่พบกล้องในอุปกรณ์';
+            } else if (error.name === 'NotSupportedError') {
+                errorMessage = '❌ เบราว์เซอร์ไม่รองรับการเข้าถึงกล้อง';
+            } else if (error.name === 'NotReadableError') {
+                errorMessage = '❌ กล้องถูกใช้งานโดยแอปอื่น';
+            } else if (error.message.includes('timeout')) {
+                errorMessage = '❌ การเชื่อมต่อกล้องหมดเวลา - ลองใหม่อีกครั้ง';
+            }
+            
+            if (this.gestureStatusElement) {
+                this.gestureStatusElement.textContent = errorMessage;
+                this.gestureStatusElement.className = 'gesture-status error';
+                this.gestureStatusElement.style.display = 'block';
+            }
+            
+            throw new Error(errorMessage);
+        }
+    }
+
+    // ฟังก์ชันสำหรับ MediaPipe Camera API
+    async startCameraWithMediaPipe() {
+        // ตรวจสอบว่า Camera API พร้อมหรือไม่
+        if (typeof Camera === 'undefined') {
+            console.error('❌ MediaPipe Camera API ไม่ได้โหลด');
+            if (this.gestureStatusElement) {
+                this.gestureStatusElement.textContent = '❌ Camera API ไม่พร้อม - รีเฟรชหน้าเว็บ';
+                this.gestureStatusElement.className = 'gesture-status error';
+                this.gestureStatusElement.style.display = 'block';
+            }
+            throw new Error('MediaPipe Camera API not loaded');
+        }
+        
+        // ตั้งค่า MediaPipe Camera
+        this.camera = new Camera(this.videoElement, {
+            onFrame: async () => {
+                if (this.hands && this.isRunning) {
+                    await this.hands.send({ image: this.videoElement });
+                }
+            },
+            width: 640,
+            height: 480,
+            facingMode: 'user'
+        });
+        
+        // เริ่มต้นกล้อง
+        await this.camera.start();
+        console.log('💻 MediaPipe Camera เริ่มแล้ว');
+    }
+
+    // ฟังก์ชันประมวลผล frame สำหรับ iOS
+    startFrameProcessing() {
+        const processFrame = async () => {
+            if (this.hands && this.isRunning && this.videoElement.readyState >= 2) {
+                try {
+                    await this.hands.send({ image: this.videoElement });
+                } catch (error) {
+                    console.warn('⚠️ Frame processing error:', error);
+                }
+            }
+            
+            if (this.isRunning) {
+                requestAnimationFrame(processFrame);
+            }
+        };
+        
+        requestAnimationFrame(processFrame);
+        console.log('📱 เริ่ม frame processing สำหรับ iOS');
+    }
     
     stopCamera() {
-        // หยุด MediaPipe Camera (Camera API จะจัดการ stream เอง)
+        console.log('⏹️ หยุดกล้อง...');
+        
+        // หยุด MediaPipe Camera (สำหรับ desktop)
         if (this.camera) {
             this.camera.stop();
             this.camera = null;
         }
         
-        // Clear video element
-        if (this.videoElement) {
+        // หยุด getUserMedia stream (สำหรับ iOS)
+        if (this.videoElement && this.videoElement.srcObject) {
+            const stream = this.videoElement.srcObject;
+            if (stream && stream.getTracks) {
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('⏹️ หยุด track:', track.kind);
+                });
+            }
             this.videoElement.srcObject = null;
         }
         
